@@ -22,6 +22,11 @@ jobs:
             - name: Setup MongoDB
               run: make setup-mongo
 
+            - name: Install PNPM
+              run: |
+                  sudo apt-get install npm
+                  npm install --location=global pnpm
+
             - name: Install Dependencies
               run: make install
 
