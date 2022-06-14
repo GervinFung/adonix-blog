@@ -10,16 +10,17 @@ const toastError = (error: any) =>
     });
 
 const ToastError = (error: any, stringCallBack?: (s: string) => string) => {
-    if (error instanceof Error) {
-        const { message } = error;
-        return !stringCallBack
+    const errorMessage = (message: string) =>
+        !stringCallBack
             ? toastError(message)
             : toastError(stringCallBack(message));
+    if (error instanceof Error) {
+        return errorMessage(error.message);
     }
     if (typeof error === 'string') {
-        return toastError(error);
+        return errorMessage(error);
     }
-    return toastError(JSON.stringify(error));
+    return errorMessage(JSON.stringify(error));
 };
 
 const ToastInfo = (info: any) =>

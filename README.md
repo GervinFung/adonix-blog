@@ -47,10 +47,18 @@ _*Make sure you have `pnpm` and `make` available in your system*_
 
 ### Environment Variables
 
-#### Development and Testing
+#### Development
 
-1. Refer to `.env.example` which is an example file for you to know what key-value pairs are needed to develop this project
-2. Then, create `.env.development` and `.env.test` file that will be used for development and testing respectively. After that, copy the key-value pairs to it and then add the values
+1. Refer to `.env.development.example` which is an example file for you to know what key-value pairs are needed to develop this project
+2. Then, create `.env.development` file that will be used for development respectively. After that, copy the key-value pairs to it and then add the values
+
+#### Testing
+
+1. Same step as development but change the `development` in file name to `test`
+
+#### Deployment
+
+1. Same step as development but change the `development` in file name to `deployment`
 
 #### Make Commands
 
