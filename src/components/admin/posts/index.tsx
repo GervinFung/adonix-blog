@@ -13,12 +13,19 @@ import { ToastError, ToastPromise } from '../../toastify';
 import { admin as adminConst } from '../../../util/const';
 import { Option } from '../common';
 import Unauthenticated from '../auth/unauthenticated';
+import PostsUnavailable from '../../blog/posts/unavailable';
 
 const Posts = () => {
-    const [state, setState] = React.useState<AdminHandlePosts>({
+    const [state, setState] = React.useState<
+        AdminHandlePosts &
+            Readonly<{
+                isLoaded: boolean;
+            }>
+    >({
         totalPosts: 0,
         type: 'published',
         posts: [],
+        isLoaded: false,
     });
 
     const router = useRouter();
@@ -26,7 +33,7 @@ const Posts = () => {
 
     const { page } = usePage();
     const { admin } = React.useContext(AdonixBlogContext);
-    const { totalPosts, type, posts } = state;
+    const { totalPosts, type, posts, isLoaded } = state;
     const { query } = router;
 
     const queryOption = adminParser.posts.parseAsNullablePostQueryOption(
@@ -55,6 +62,7 @@ const Posts = () => {
 
                                 return {
                                     ...prev,
+                                    isLoaded: true,
                                     totalPosts: paginated.parseAsTotalPosts(
                                         data.totalPosts
                                     ),
@@ -87,7 +95,13 @@ const Posts = () => {
                             });
                             res('Completed');
                         })
-                        .catch(rej)
+                        .catch((error) => {
+                            setState((prev) => ({
+                                ...prev,
+                                isLoaded: true,
+                            }));
+                            rej(error);
+                        })
                 )
                 .catch(rej)
         );
@@ -104,12 +118,16 @@ const Posts = () => {
         });
     }, [queryOption, page, admin?.uid]);
 
-    if (!queryOption) {
+    if (!queryOption || !isLoaded) {
         return null;
     }
 
     if (!admin) {
         return <Unauthenticated />;
+    }
+
+    if (!posts.length) {
+        return <PostsUnavailable type={type} />;
     }
 
     return (

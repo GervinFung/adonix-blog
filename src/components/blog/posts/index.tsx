@@ -8,6 +8,7 @@ import blogPropsParser from '../../../parser/blog';
 import { ToastError, ToastPromise } from '../../toastify';
 import Preview from './preview';
 import usePage from '../../../hook/page';
+import PostsUnavailable from './unavailable';
 
 const Posts = () => {
     const router = useRouter();
@@ -15,9 +16,10 @@ const Posts = () => {
     const [state, setState] = React.useState({
         posts: [] as PublishedPosts,
         totalPosts: 0,
+        isLoaded: false,
     });
 
-    const { posts, totalPosts } = state;
+    const { posts, totalPosts, isLoaded } = state;
 
     const { page } = usePage();
 
@@ -30,6 +32,7 @@ const Posts = () => {
                         const { paginated } = blogPropsParser();
                         return {
                             ...prev,
+                            isLoaded: true,
                             posts: paginated.parseAsPublishedPosts(data.posts),
                             totalPosts: paginated.parseAsTotalPosts(
                                 data.totalPosts
@@ -38,7 +41,13 @@ const Posts = () => {
                     });
                     res('Completed');
                 })
-                .catch(rej)
+                .catch((error) => {
+                    setState((prev) => ({
+                        ...prev,
+                        isLoaded: true,
+                    }));
+                    rej(error);
+                })
         );
         ToastPromise({
             promise,
@@ -53,7 +62,9 @@ const Posts = () => {
         });
     }, [page]);
 
-    return (
+    return !isLoaded ? null : !posts.length ? (
+        <PostsUnavailable type="published" />
+    ) : (
         <Preview
             type="user"
             posts={posts.map(({ timePublished, ...props }) => ({
