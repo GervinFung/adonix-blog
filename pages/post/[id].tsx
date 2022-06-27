@@ -1,11 +1,10 @@
 import * as React from 'react';
-import Container from '@mui/material/Container';
 import Post from '../../src/components/blog/post';
 
 const Index = () => (
-    <Container>
+    <div>
         <Post />
-    </Container>
+    </div>
 );
 
 export default Index;

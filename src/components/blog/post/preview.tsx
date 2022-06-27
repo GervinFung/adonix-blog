@@ -5,17 +5,25 @@ import StringToMarkdown from './parser';
 import { NonNullablePublishedPost } from '../../../common/type/post';
 
 const Preview = ({
-    post: { title, description, timePublished, content },
+    post: { title, description, timePublished, content, imagePath },
 }: Readonly<{
     post: NonNullablePublishedPost;
 }>) => (
     <Container
+        maxWidth={false}
         component="div"
         sx={{
-            mt: 4,
             mb: 8,
+            width: '85%',
         }}
     >
+        <img
+            src={imagePath}
+            style={{
+                width: '100%',
+                margin: '0 0 16px 0',
+            }}
+        />
         <Typography
             variant="h3"
             component="div"

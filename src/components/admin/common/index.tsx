@@ -24,6 +24,7 @@ const Option = <A, T extends string>({
         fullWidth
         sx={{
             mt: 2,
+            boxSizing: 'border-box',
         }}
     >
         <InputLabel id="query-option-label">{label}</InputLabel>
@@ -34,20 +35,15 @@ const Option = <A, T extends string>({
             value={value}
             onChange={(event) => onOptionSelected(event.target.value as T)}
         >
-            {options.map((option) => {
-                if (isUseDisabled && option === value) {
-                    return (
-                        <MenuItem disabled key={option} value={option}>
-                            {capitalize(option)}
-                        </MenuItem>
-                    );
-                }
-                return (
-                    <MenuItem key={option} value={option}>
-                        {capitalize(option)}
-                    </MenuItem>
-                );
-            })}
+            {options.map((option) => (
+                <MenuItem
+                    key={option}
+                    value={option}
+                    disabled={isUseDisabled && option === value}
+                >
+                    {capitalize(option)}
+                </MenuItem>
+            ))}
         </Select>
     </FormControl>
 );

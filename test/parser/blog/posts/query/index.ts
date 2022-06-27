@@ -20,6 +20,7 @@ const testPostsParser = () => {
                 id: '628a48e232347c40baef8bad',
                 description: 'Description 0',
                 title: 'Title 0',
+                imagePath: 'Image Path 0',
             },
         ] as const;
 

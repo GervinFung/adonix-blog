@@ -10,7 +10,7 @@ const createInstance = (method: Method) =>
         method,
     });
 
-const adonisAxios = {
+const adonixAxios = {
     ...axios,
     get: (url: string) => createInstance('get').get(url),
     post: async (
@@ -31,4 +31,4 @@ const adonisAxios = {
         }),
 } as const;
 
-export default adonisAxios;
+export default adonixAxios;

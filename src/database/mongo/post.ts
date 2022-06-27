@@ -73,6 +73,7 @@ const postCollection = (getPost: () => Collection<Document>) => {
                     title: 1,
                     description: 1,
                     content: 1,
+                    imagePath: 1,
                     [timeFieldRequired]: 1,
                 },
             }
@@ -118,6 +119,7 @@ const postCollection = (getPost: () => Collection<Document>) => {
                         _id: 1,
                         title: 1,
                         description: 1,
+                        imagePath: 1,
                         [timeFieldRequired]: 1,
                     },
                 })

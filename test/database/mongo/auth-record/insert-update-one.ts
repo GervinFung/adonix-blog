@@ -10,7 +10,7 @@ const testInsertUpdate = () =>
             const { authRecordCollection } = await promisifyMongoDb;
 
             const dataOne = {
-                aud: 'adonis-os-blog-local',
+                aud: 'Adonix-os-blog-local',
                 email: 'random@gmail.com',
                 timeCreated: new Date(),
                 type: 'email-defined',
@@ -19,7 +19,7 @@ const testInsertUpdate = () =>
             } as const;
 
             const dataTwo = {
-                aud: 'adonis-os-blog-local',
+                aud: 'Adonix-os-blog-local',
                 email: 'random@gmail.com',
                 timeCreated: new Date(),
                 type: 'email-defined',

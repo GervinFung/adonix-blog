@@ -1,7 +1,7 @@
 type Aud =
-    | 'adonis-os-blog-local'
-    | 'adonis-os-blog-staging'
-    | 'adonis-os-blog-production';
+    | 'Adonix-os-blog-local'
+    | 'Adonix-os-blog-staging'
+    | 'Adonix-os-blog-production';
 
 type FilterForUpdateAuth = Readonly<{
     uid: string;
