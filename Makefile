@@ -17,14 +17,14 @@ install:
 ## dev
 next=$(NODE_BIN)next
 
-pre-dev:
+clear-cache:
 	rm -rf .next
 
-dev: pre-dev
+dev: clear-cache
 	$(next) dev
 
 ## build
-build:
+build: clear-cache
 	$(next) build
 
 ## clean-up:
