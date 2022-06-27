@@ -8,6 +8,7 @@ const testQueryPublishUnpublishDeleteRestore = () =>
             content: 'Hello Eillie',
             description: 'Hello to a friend of mine',
             title: 'A friend',
+            imagePath: 'Image Path',
             timeCreated: new Date(),
         };
         beforeEach(async () => {
@@ -43,6 +44,7 @@ const testQueryPublishUnpublishDeleteRestore = () =>
                 title: dummyDataOne.title,
                 description: dummyDataOne.description,
                 content: dummyDataOne.content,
+                imagePath: dummyDataOne.imagePath,
             });
             // publish
             expect(
@@ -65,6 +67,7 @@ const testQueryPublishUnpublishDeleteRestore = () =>
                 title: dummyDataOne.title,
                 description: dummyDataOne.description,
                 content: dummyDataOne.content,
+                imagePath: dummyDataOne.imagePath,
             });
             // unpublish
             expect(
@@ -92,6 +95,7 @@ const testQueryPublishUnpublishDeleteRestore = () =>
                 title: dummyDataOne.title,
                 description: dummyDataOne.description,
                 content: dummyDataOne.content,
+                imagePath: dummyDataOne.imagePath,
             });
             // publish
             expect(
@@ -110,6 +114,7 @@ const testQueryPublishUnpublishDeleteRestore = () =>
                 title: dummyDataOne.title,
                 description: dummyDataOne.description,
                 content: dummyDataOne.content,
+                imagePath: dummyDataOne.imagePath,
             };
 
             // 1. After deleting it, it will be treated as deleted

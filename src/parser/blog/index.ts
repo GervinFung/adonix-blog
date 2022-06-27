@@ -27,12 +27,15 @@ const blogPropsParser = () => {
         parseAsString(description).orElseThrowDefault('description');
     const parseAsContent = (content: unknown) =>
         parseAsString(content).orElseThrowDefault('content');
+    const parseAsImagePath = (imagePath: unknown) =>
+        parseAsString(imagePath).orElseThrowDefault('imagePath');
 
     const parseAsPostCommonProps = (post: unknown) =>
         parseAsReadonlyObject(post, (post) => ({
             title: parseAsTitle(post.title),
             description: parseAsDescription(post.description),
             content: parseAsContent(post.content),
+            imagePath: parseAsImagePath(post.imagePath),
         })).orElseThrowDefault('post');
 
     const parseAsPostOfPostsCommonProps = (post: unknown) =>
@@ -40,6 +43,7 @@ const blogPropsParser = () => {
             id: parseAsId(post.id),
             title: parseAsTitle(post.title),
             description: parseAsDescription(post.description),
+            imagePath: parseAsImagePath(post.imagePath),
         })).orElseThrowDefault('post');
 
     const parseAsPublishedPost = (post: unknown): PublishedPost =>

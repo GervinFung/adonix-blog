@@ -11,6 +11,7 @@ const BasicPagination = ({
     onChange: (page: number) => void;
 }>) => (
     <Pagination
+        size="large"
         count={count}
         page={page}
         onChange={(_, page) => onChange(page)}

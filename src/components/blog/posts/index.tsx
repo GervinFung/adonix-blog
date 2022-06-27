@@ -2,7 +2,7 @@ import * as React from 'react';
 import { parseAsString } from 'parse-dont-validate';
 import { useRouter } from 'next/router';
 import { PublishedPosts } from '../../../common/type/post';
-import adonisAxios from '../../../axios';
+import adonixAxios from '../../../axios';
 import { api } from '../../../util/const';
 import blogPropsParser from '../../../parser/blog';
 import { ToastError, ToastPromise } from '../../toastify';
@@ -25,7 +25,7 @@ const Posts = () => {
 
     React.useEffect(() => {
         const promise = new Promise<string>((res, rej) =>
-            adonisAxios
+            adonixAxios
                 .get(`${api.post.paginated}/${page}`)
                 .then(({ data }) => {
                     setState((prev) => {
@@ -62,19 +62,41 @@ const Posts = () => {
         });
     }, [page]);
 
-    return !isLoaded ? null : !posts.length ? (
-        <PostsUnavailable type="published" />
-    ) : (
-        <Preview
-            type="user"
-            posts={posts.map(({ timePublished, ...props }) => ({
-                ...props,
-                time: timePublished,
-            }))}
-            totalPosts={totalPosts}
-            page={page}
-            onPaginationChange={(page) => router.push(`/posts/${page}`)}
+    const Background = () => (
+        <div
+            style={{
+                backgroundImage: "url('/images/background/bg.webp')",
+                width: '100%',
+                height: '70vh',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                zIndex: -1,
+            }}
         />
+    );
+
+    return !isLoaded ? null : !posts.length ? (
+        <>
+            <Background />
+            <PostsUnavailable type="published" />
+        </>
+    ) : (
+        <>
+            <Background />
+            <Preview
+                type="user"
+                posts={posts.map(({ timePublished, ...props }) => ({
+                    ...props,
+                    time: timePublished,
+                }))}
+                totalPosts={totalPosts}
+                page={page}
+                onPaginationChange={(page) =>
+                    router.push(`/${page}`, undefined, { shallow: true })
+                }
+            />
+        </>
     );
 };
 

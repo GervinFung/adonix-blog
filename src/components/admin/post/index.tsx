@@ -7,9 +7,12 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { useRouter } from 'next/router';
 import { parseAsString } from 'parse-dont-validate';
-import { AdonixBlogContext } from '../../../../pages/_app';
-import adonisAxios from '../../../axios';
-import { AdminHandlePost, UpdatePostStatus } from '../../../common/type/post';
+import adonixAxios from '../../../axios';
+import {
+    AdminHandlePost,
+    UpdatePostStatus,
+    UpdatePostCommonProps,
+} from '../../../common/type/post';
 import adminPropsParser from '../../../parser/admin';
 import blogPropsParser from '../../../parser/blog';
 import nullableToUndefinedPropsParser from '../../../parser/type';
@@ -21,9 +24,9 @@ import { equal } from '../../../util/deep-equal';
 import Typography from '@mui/material/Typography';
 import Preview from '../../blog/post/preview';
 import PostUnavailable from '../../blog/post/unavailable';
-import Unauthenticated from '../auth/unauthenticated';
+import { NonNullableAdonixAdmin } from '../../../auth';
 
-type NameOfMutableData = 'title' | 'description' | 'content';
+type NameOfMutableData = keyof UpdatePostCommonProps;
 
 type TabPanelProps = Readonly<{
     children: React.ReactNode;
@@ -31,7 +34,11 @@ type TabPanelProps = Readonly<{
     value: number;
 }>;
 
-const Post = () => {
+const Post = ({
+    admin,
+}: Readonly<{
+    admin: NonNullableAdonixAdmin;
+}>) => {
     const [state, setState] = React.useState({
         updated: undefined as AdminHandlePost | undefined,
         original: undefined as AdminHandlePost | undefined,
@@ -43,7 +50,6 @@ const Post = () => {
     const router = useRouter();
     const adminParser = adminPropsParser();
 
-    const { admin } = React.useContext(AdonixBlogContext);
     const { one } = blogPropsParser();
     const { query } = router;
     const { updated, original, status, value, isLoaded } = state;
@@ -54,14 +60,14 @@ const Post = () => {
     );
 
     React.useEffect(() => {
-        if (!admin || !queryOption || !id) {
+        if (!queryOption || !id) {
             return;
         }
         const promise = new Promise<string>((res, rej) =>
             admin
                 .getIdToken(true)
                 .then((token) =>
-                    adonisAxios
+                    adonixAxios
                         .get(
                             `${api.admin.post.query}/${id}?token=${token}&queryOption=${queryOption}`
                         )
@@ -131,14 +137,10 @@ const Post = () => {
                 render: ({ data }) => ToastError(data),
             },
         });
-    }, [id, admin?.uid]);
+    }, [id, queryOption]);
 
     if (!updated || !isLoaded) {
         return null;
-    }
-
-    if (!admin) {
-        return <Unauthenticated />;
     }
 
     const { type, post } = updated;
@@ -147,7 +149,7 @@ const Post = () => {
         return <PostUnavailable type={type} />;
     }
 
-    const { title, description, content } = post;
+    const { title, description, content, imagePath } = post;
 
     const { parseAsNonNullable } = nullableToUndefinedPropsParser();
 
@@ -211,8 +213,8 @@ const Post = () => {
         <div
             role="tabpanel"
             hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
+            id={`${index}`}
+            aria-labelledby={`${index}`}
         >
             {value === index && (
                 <Box sx={{ p: 3 }}>
@@ -222,12 +224,17 @@ const Post = () => {
         </div>
     );
 
-    const isPreview = value === 1;
+    const isDisableButton = equal(updated, original) && !status;
 
     return (
         <Paper
-            elevation={2}
+            elevation={0}
             component="form"
+            noValidate
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
             sx={{
                 flexGrow: 1,
                 mt: 4,
@@ -240,22 +247,17 @@ const Post = () => {
                     width: '100%',
                 },
             }}
-            noValidate
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck="false"
         >
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs
-                    value={isPreview ? 'Preview' : 'Edit'}
+                    value={value}
+                    aria-label="edit-preview-tabs"
                     onChange={(_, value) =>
                         setState((prev) => ({
                             ...prev,
                             value,
                         }))
                     }
-                    aria-label="basic tabs example"
                 >
                     <Tab label="Edit" />
                     <Tab label="Preview" />
@@ -269,201 +271,215 @@ const Post = () => {
                     }}
                 />
             </TabPanel>
-            <TabPanel value={value} index={0}>
-                <Container
-                    sx={{
-                        width: '100%',
-                        mb: 4,
-                    }}
-                >
-                    <Option
-                        label="Status"
-                        isUseDisabled={true}
-                        options={formOptionsForPost()}
-                        value={status ?? queryOption}
-                        onOptionSelected={(status) => {
-                            if (
+            <Container
+                sx={{
+                    width: '100%',
+                    mb: 4,
+                }}
+            >
+                <Option
+                    label="Status"
+                    isUseDisabled={true}
+                    options={formOptionsForPost()}
+                    value={status ?? queryOption}
+                    onOptionSelected={(status) =>
+                        setState((prev) => ({
+                            ...prev,
+                            status:
                                 status === 'published' ||
                                 status === 'deleted' ||
                                 status === 'unpublished'
-                            ) {
-                                return setState((prev) => ({
-                                    ...prev,
-                                    status: undefined,
-                                }));
+                                    ? undefined
+                                    : status,
+                        }))
+                    }
+                />
+            </Container>
+            <Input
+                id="imagePath"
+                type="text"
+                value={imagePath}
+                placeholder="Image Path"
+                onChanged={(imagePath) =>
+                    setState((prev) => {
+                        const updated = parseAsNonNullable(prev.updated);
+                        return {
+                            ...prev,
+                            updated: {
+                                ...updated,
+                                ...getDiscriminatedUnionOfPost(updated, {
+                                    key: 'imagePath',
+                                    value: imagePath,
+                                }),
+                            },
+                        };
+                    })
+                }
+            />
+            <Input
+                id="title"
+                type="text"
+                value={title}
+                placeholder="Title"
+                onChanged={(title) =>
+                    setState((prev) => {
+                        const updated = parseAsNonNullable(prev.updated);
+                        return {
+                            ...prev,
+                            updated: {
+                                ...updated,
+                                ...getDiscriminatedUnionOfPost(updated, {
+                                    key: 'title',
+                                    value: title,
+                                }),
+                            },
+                        };
+                    })
+                }
+            />
+            <Input
+                id="description"
+                type="text"
+                value={description}
+                placeholder="Description"
+                onChanged={(description) =>
+                    setState((prev) => {
+                        const updated = parseAsNonNullable(prev.updated);
+                        return {
+                            ...prev,
+                            updated: {
+                                ...updated,
+                                ...getDiscriminatedUnionOfPost(updated, {
+                                    key: 'description',
+                                    value: description,
+                                }),
+                            },
+                        };
+                    })
+                }
+            />
+            <Input
+                id="content"
+                multiline
+                type="text"
+                value={content}
+                placeholder="Content"
+                onChanged={(content) =>
+                    setState((prev) => {
+                        const updated = parseAsNonNullable(prev.updated);
+                        return {
+                            ...prev,
+                            updated: {
+                                ...updated,
+                                ...getDiscriminatedUnionOfPost(updated, {
+                                    key: 'content',
+                                    value: content,
+                                }),
+                            },
+                        };
+                    })
+                }
+            />
+            <Container
+                sx={{
+                    margin: 'auto',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mt: 2,
+                    mb: 2,
+                }}
+            >
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    disabled={isDisableButton}
+                    onClick={() =>
+                        setState((prev) => {
+                            const { original } = prev;
+                            if (!original) {
+                                throw new Error(
+                                    'should fetch data and have original defined'
+                                );
                             }
-                            setState((prev) => ({
-                                ...prev,
-                                status,
-                            }));
-                        }}
-                    />
-                </Container>
-                <Input
-                    id="title"
-                    type="text"
-                    value={title}
-                    placeholder="Title"
-                    onChanged={(title) =>
-                        setState((prev) => {
-                            const updated = parseAsNonNullable(prev.updated);
                             return {
                                 ...prev,
-                                updated: {
-                                    ...updated,
-                                    ...getDiscriminatedUnionOfPost(updated, {
-                                        key: 'title',
-                                        value: title,
-                                    }),
-                                },
+                                status: undefined,
+                                updated: original,
                             };
                         })
                     }
-                />
-                <Input
-                    id="description"
-                    type="text"
-                    value={description}
-                    placeholder="Description"
-                    onChanged={(description) =>
-                        setState((prev) => {
-                            const updated = parseAsNonNullable(prev.updated);
-                            return {
-                                ...prev,
-                                updated: {
-                                    ...updated,
-                                    ...getDiscriminatedUnionOfPost(updated, {
-                                        key: 'description',
-                                        value: description,
-                                    }),
-                                },
-                            };
-                        })
-                    }
-                />
-                <Input
-                    id="content"
-                    multiline
-                    type="text"
-                    value={content}
-                    placeholder="Content"
-                    onChanged={(content) =>
-                        setState((prev) => {
-                            const updated = parseAsNonNullable(prev.updated);
-                            return {
-                                ...prev,
-                                updated: {
-                                    ...updated,
-                                    ...getDiscriminatedUnionOfPost(updated, {
-                                        key: 'content',
-                                        value: content,
-                                    }),
-                                },
-                            };
-                        })
-                    }
-                />
-                <Container
-                    sx={{
-                        margin: 'auto',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mt: 2,
-                        mb: 2,
+                >
+                    Revert
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={isDisableButton}
+                    onClick={() => {
+                        const { type } = updated;
+                        const post = parseAsNonNullable(updated.post);
+                        if (!isAllTextValid(post)) {
+                            ToastError('Invalid input');
+                            return;
+                        }
+                        const promise = new Promise<string>((res, rej) =>
+                            admin
+                                .getIdToken(true)
+                                .then((token) =>
+                                    adonixAxios
+                                        .post(
+                                            `${api.admin.post.update}/${id}`,
+                                            {
+                                                data: {
+                                                    post: updated.post,
+                                                    id,
+                                                    queryOption: type,
+                                                    status,
+                                                    token,
+                                                },
+                                            }
+                                        )
+                                        .then(({ data }) => res(data.message))
+                                )
+                                .catch(rej)
+                        );
+                        ToastPromise({
+                            promise,
+                            pending: 'Updating post...',
+                            success: {
+                                render: ({ data }) =>
+                                    parseAsString(data).orElseThrowDefault(
+                                        'data'
+                                    ),
+                            },
+                            error: {
+                                render: ({ data }) => ToastError(data),
+                            },
+                        });
+                        if (!status) {
+                            return;
+                        }
+                        router.replace(
+                            `/admin/post/${id}?queryOption=${(() => {
+                                switch (status) {
+                                    case 'publish':
+                                        return 'published';
+                                    case 'restore':
+                                    case 'unpublish':
+                                        return 'unpublished';
+                                    case 'delete':
+                                        return 'deleted';
+                                }
+                            })()}`,
+                            undefined,
+                            { shallow: true }
+                        );
                     }}
                 >
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        disabled={equal(updated, original)}
-                        onClick={() =>
-                            setState((prev) => {
-                                const { original } = prev;
-                                if (!original) {
-                                    throw new Error(
-                                        'should fetch data and have original defined'
-                                    );
-                                }
-                                return {
-                                    ...prev,
-                                    status: undefined,
-                                    updated: original,
-                                };
-                            })
-                        }
-                    >
-                        Revert
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={equal(updated, original)}
-                        onClick={() => {
-                            const { type } = updated;
-                            const post = parseAsNonNullable(updated.post);
-                            if (!isAllTextValid(post)) {
-                                ToastError('Invalid input');
-                                return;
-                            }
-                            const promise = new Promise<string>((res, rej) =>
-                                admin
-                                    .getIdToken(true)
-                                    .then((token) =>
-                                        adonisAxios
-                                            .post(
-                                                `${api.admin.post.update}/${id}`,
-                                                {
-                                                    data: {
-                                                        post: updated.post,
-                                                        id,
-                                                        queryOption: type,
-                                                        status,
-                                                        token,
-                                                    },
-                                                }
-                                            )
-                                            .then(({ data }) =>
-                                                res(data.message)
-                                            )
-                                    )
-                                    .catch(rej)
-                            );
-                            ToastPromise({
-                                promise,
-                                pending: 'Updating post...',
-                                success: {
-                                    render: ({ data }) =>
-                                        parseAsString(data).orElseThrowDefault(
-                                            'data'
-                                        ),
-                                },
-                                error: {
-                                    render: ({ data }) => ToastError(data),
-                                },
-                            });
-                            if (!status) {
-                                return;
-                            }
-                            router.replace(
-                                `/admin/post/${id}?queryOption=${(() => {
-                                    switch (status) {
-                                        case 'publish':
-                                            return 'published';
-                                        case 'restore':
-                                        case 'unpublish':
-                                            return 'unpublished';
-                                        case 'delete':
-                                            return 'deleted';
-                                    }
-                                })()}`
-                            );
-                        }}
-                    >
-                        Update
-                    </Button>
-                </Container>
-            </TabPanel>
+                    Update
+                </Button>
+            </Container>
         </Paper>
     );
 };

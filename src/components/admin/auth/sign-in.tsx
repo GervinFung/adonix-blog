@@ -3,32 +3,22 @@ import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { useRouter } from 'next/router';
-import { adonisAdmin } from '../../../auth';
+import { adonixAdmin } from '../../../auth';
 import { ToastError } from '../../toastify';
 import { Input } from '../common';
-import { AdonixBlogContext } from '../../../../pages/_app';
+import { blue } from '@mui/material/colors';
 
 const SignIn = () => {
-    const router = useRouter();
-
     const [state, setState] = React.useState({
         email: '',
         password: '',
     });
 
-    const { admin } = React.useContext(AdonixBlogContext);
-
-    if (admin) {
-        router.replace('/');
-        return null;
-    }
-
     const { email, password } = state;
 
     return (
         <Paper
-            elevation={2}
+            elevation={0}
             component="form"
             sx={{
                 flexGrow: 1,
@@ -110,16 +100,18 @@ const SignIn = () => {
             >
                 <Button
                     variant="contained"
+                    sx={{
+                        background: blue[500],
+                        color: 'white',
+                    }}
                     onClick={async () => {
-                        const result = await adonisAdmin.signIn({
+                        const result = await adonixAdmin.signIn({
                             email,
                             password,
                         });
                         switch (result.type) {
                             case 'succeed':
-                                return router.replace(
-                                    '/admin/posts/1?queryOption=published'
-                                );
+                                return;
                             case 'failed': {
                                 const { error } = result;
                                 if (!(error instanceof Error)) {

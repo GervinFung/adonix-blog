@@ -1,29 +1,29 @@
 # **My Second (Hopefully, The Final) Blog - Adonix Blog**
 
-I had to redo the entire blog from scratch, because the previous project - Adonis OS Blog was a total mess as it became unscalable real quick because I did not plan well
+I had to redo the entire blog from scratch, because the previous project - Adonix OS Blog was a total mess as it became unscalable real quick because I did not plan well
 
 <details>
 <summary>Click to preview!</summary>
 
 #### Home Page
 
-![Light Mode](./docs/home/light.png 'Light Mode')
-![Dark Mode](./docs/home/dark.png 'Dark Mode')
-
-#### Posts
-
-![Light Mode Posts](./docs/posts/light.png 'Light Mode Posts')
-![Dark Mode Posts](./docs/posts/dark.png 'Dark Mode Posts')
+![Light Mode](docs/home/light.png 'Light Mode')
+![Dark Mode](docs/home/dark.png 'Dark Mode')
+**Excuse me for weird title and description**
+![Light Mode Posts](docs/home/light-posts.png 'Light Mode Posts')
+![Dark Mode Posts](docs/home/dark-posts.png 'Dark Mode Posts')
 
 #### Post
 
-![Light Mode Post](./docs/post/light.png 'Light Mode Post')
-![Dark Mode Post](./docs/post/dark.png 'Dark Mode Post')
+![Light Mode Post](docs/post/light.png 'Light Mode Post')
+![Dark Mode Post](docs/post/dark.png 'Dark Mode Post')
+![Light Mode Content](docs/post/light-content.png 'Light Mode Content')
+![Dark Mode Content](docs/post/dark-content.png 'Dark Mode Content')
 
 #### Footer yeah, ordinary
 
-![Light Mode Footer](./docs/footer/light.png 'Light Mode Footer')
-![Dark Mode Footer](./docs/footer/dark.png 'Dark Mode Footer')
+![Light Mode Footer](docs/footer/light.png 'Light Mode Footer')
+![Dark Mode Footer](docs/footer/dark.png 'Dark Mode Footer')
 
 </details>
 

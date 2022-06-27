@@ -3,11 +3,6 @@ import promisifyMongoDb from '../../../../src/database/mongo';
 
 const testQueryPaginated = () =>
     describe('Paginated Query', () => {
-        beforeAll(async () => {
-            const { postCollection } = await promisifyMongoDb;
-            await postCollection.clear();
-            await postCollection.bulkInsert(dummyData);
-        });
         const dummyData = Array.from({ length: 36 }, (_, index) => {
             const timeStamp = `2022-05-12T14:53:${
                 index >= 10 ? index : `0${index}`
@@ -17,6 +12,7 @@ const testQueryPaginated = () =>
                 content: `Content ${index}`,
                 description: `Description ${index}`,
                 title: `Title ${index}`,
+                imagePath: `Image ${index}`,
                 timeCreated: new Date(timeStamp),
                 timeUpdated: new Date('2022-05-12T14:53:00.165Z'),
                 timePublished: new Date(timeStamp),
@@ -37,6 +33,11 @@ const testQueryPaginated = () =>
                 timeDeleted: new Date(timeStamp),
             };
         });
+        beforeAll(async () => {
+            const { postCollection } = await promisifyMongoDb;
+            await postCollection.clear();
+            await postCollection.bulkInsert(dummyData);
+        });
         it('should query paginated posts', async () => {
             const paginatePublishedDummyData = ({
                 start,
@@ -47,17 +48,25 @@ const testQueryPaginated = () =>
             }>) =>
                 dummyData
                     .filter((_, index) => index >= start && index <= end)
-                    .flatMap(({ _id, title, description, timePublished }) =>
-                        !timePublished
-                            ? []
-                            : [
-                                  {
-                                      id: _id.toHexString(),
-                                      title,
-                                      description,
-                                      timePublished,
-                                  },
-                              ]
+                    .flatMap(
+                        ({
+                            _id,
+                            title,
+                            description,
+                            timePublished,
+                            imagePath,
+                        }) =>
+                            !timePublished
+                                ? []
+                                : [
+                                      {
+                                          id: _id.toHexString(),
+                                          title,
+                                          description,
+                                          timePublished,
+                                          imagePath,
+                                      },
+                                  ]
                     )
                     .sort(
                         (a, b) =>
@@ -99,12 +108,21 @@ const testQueryPaginated = () =>
             ).toStrictEqual(
                 dummyData
                     .filter((_, index) => index >= 18 && index <= 26)
-                    .map(({ _id, title, description, timeCreated }) => ({
-                        id: _id.toHexString(),
-                        title,
-                        description,
-                        timeCreated,
-                    }))
+                    .map(
+                        ({
+                            _id,
+                            title,
+                            description,
+                            timeCreated,
+                            imagePath,
+                        }) => ({
+                            id: _id.toHexString(),
+                            title,
+                            description,
+                            timeCreated,
+                            imagePath,
+                        })
+                    )
                     .sort(
                         (a, b) =>
                             b.timeCreated.getTime() - a.timeCreated.getTime()
@@ -122,17 +140,19 @@ const testQueryPaginated = () =>
                 })
             ).toStrictEqual(
                 dummyData
-                    .flatMap(({ _id, title, description, timeDeleted }) =>
-                        !timeDeleted
-                            ? []
-                            : [
-                                  {
-                                      id: _id.toHexString(),
-                                      title,
-                                      description,
-                                      timeDeleted,
-                                  },
-                              ]
+                    .flatMap(
+                        ({ _id, title, description, timeDeleted, imagePath }) =>
+                            !timeDeleted
+                                ? []
+                                : [
+                                      {
+                                          id: _id.toHexString(),
+                                          title,
+                                          description,
+                                          timeDeleted,
+                                          imagePath,
+                                      },
+                                  ]
                     )
                     .sort(
                         (a, b) =>

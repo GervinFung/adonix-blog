@@ -7,11 +7,13 @@ const testQueryInsertUpdateOne = () =>
             description: 'Hello to a friend of mine',
             title: 'A friend',
             timeCreated: new Date(),
+            imagePath: 'imagePath',
         };
         const dataCommonProps = {
             title: 'New title',
             content: 'New content',
             description: 'New description',
+            imagePath: 'imagePath',
         };
         beforeEach(async () => {
             const { postCollection } = await promisifyMongoDb;

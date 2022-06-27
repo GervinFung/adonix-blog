@@ -1,5 +1,5 @@
 import * as React from 'react';
-import adonisAxios from '../../../axios';
+import adonixAxios from '../../../axios';
 import { api } from '../../../util/const';
 import blogPropsParser from '../../../parser/blog';
 import { ToastError, ToastPromise } from '../../toastify';
@@ -27,7 +27,7 @@ const Post = () => {
             return;
         }
         const promise = new Promise<string>((res, rej) =>
-            adonisAxios
+            adonixAxios
                 .get(`${api.post.one}/${id}`)
                 .then(({ data }) => {
                     setState((prev) => ({

@@ -3,6 +3,7 @@ import { admin } from '../../util/const';
 
 type Post = Readonly<{
     id: ObjectId;
+    imagePath: string;
     timeCreated: Date;
     timeUpdated: Date | undefined;
     timePublished: Date | undefined;
@@ -12,7 +13,10 @@ type Post = Readonly<{
     title: string;
 }>;
 
-type PostCommonProps = Pick<Post, 'content' | 'description' | 'title'>;
+type PostCommonProps = Pick<
+    Post,
+    'imagePath' | 'content' | 'description' | 'title'
+>;
 
 type PublishedPost =
     | undefined
@@ -42,7 +46,7 @@ type InsertPost = NonNullableUnpublishedPost;
 
 type InsertPostExcludeTimeCreated = Omit<InsertPost, 'timeCreated'>;
 
-type UpdatePostCommonProps = Pick<Post, 'content' | 'description' | 'title'>;
+type UpdatePostCommonProps = PostCommonProps;
 
 type UpdatePublishedPost = UpdatePostCommonProps &
     Readonly<{

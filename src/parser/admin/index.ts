@@ -18,7 +18,9 @@ const adminPropsParser = () => {
             parseAsPostQueryOption: (option: unknown) =>
                 parseAsPostQueryOption(option).orElseThrowDefault('option'),
             parseAsNullablePostQueryOption: (option: unknown) =>
-                parseAsPostQueryOption(option).orElseGetUndefined(),
+                parseAsPostQueryOption(option).orElseLazyGet(
+                    () => 'published' as PostsQueryOption
+                ),
             parseAsNullablePostStatus: (status: unknown) =>
                 parseAsCustomType<UpdatePostStatus>(status, (status) =>
                     admin.updatePostStatus.includes(status)

@@ -6,12 +6,11 @@ const usePage = () => {
     const { query } = router;
 
     return {
-        page:
-            parseAsNumber(
-                parseInt(typeof query.page === 'string' ? query.page : '1')
-            )
-                .inRangeOf(1, Number.MAX_SAFE_INTEGER)
-                .orElseGetUndefined() ?? 1,
+        page: parseAsNumber(
+            parseInt(typeof query.page === 'string' ? query.page : '1')
+        )
+            .inRangeOf(1, Number.MAX_SAFE_INTEGER)
+            .orElseLazyGet(() => 1),
     };
 };
 

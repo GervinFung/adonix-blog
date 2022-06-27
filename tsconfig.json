@@ -24,6 +24,6 @@
         "outDir": "build",
         "allowJs": false
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/_document.tsx"],
+    "include": ["next-env.d.ts", "src", "pages", "test"],
     "exclude": ["node_modules"]
 }

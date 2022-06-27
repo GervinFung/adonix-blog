@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/router';
 import { parseAsString } from 'parse-dont-validate';
-import { AdonixBlogContext } from '../../../../pages/_app';
-import adonisAxios from '../../../axios';
+import adonixAxios from '../../../axios';
 import { AdminHandlePosts } from '../../../common/type/post';
 import usePage from '../../../hook/page';
 import adminPropsParser from '../../../parser/admin';
@@ -12,10 +11,14 @@ import Preview from '../../blog/posts/preview';
 import { ToastError, ToastPromise } from '../../toastify';
 import { admin as adminConst } from '../../../util/const';
 import { Option } from '../common';
-import Unauthenticated from '../auth/unauthenticated';
 import PostsUnavailable from '../../blog/posts/unavailable';
+import { NonNullableAdonixAdmin } from '../../../auth';
 
-const Posts = () => {
+const Posts = ({
+    admin,
+}: Readonly<{
+    admin: NonNullableAdonixAdmin;
+}>) => {
     const [state, setState] = React.useState<
         AdminHandlePosts &
             Readonly<{
@@ -32,7 +35,6 @@ const Posts = () => {
     const adminParser = adminPropsParser();
 
     const { page } = usePage();
-    const { admin } = React.useContext(AdonixBlogContext);
     const { totalPosts, type, posts, isLoaded } = state;
     const { query } = router;
 
@@ -41,14 +43,14 @@ const Posts = () => {
     );
 
     React.useEffect(() => {
-        if (!admin || !queryOption) {
+        if (!queryOption) {
             return;
         }
         const promise = new Promise<string>((res, rej) =>
             admin
                 .getIdToken()
                 .then((token) =>
-                    adonisAxios
+                    adonixAxios
                         .get(
                             `${api.post.paginated}/${page}?queryOption=${queryOption}&token=${token}`
                         )
@@ -116,14 +118,10 @@ const Posts = () => {
                 render: ({ data }) => ToastError(data),
             },
         });
-    }, [queryOption, page, admin?.uid]);
+    }, [queryOption, page]);
 
     if (!queryOption || !isLoaded) {
         return null;
-    }
-
-    if (!admin) {
-        return <Unauthenticated />;
     }
 
     if (!posts.length) {
@@ -137,7 +135,7 @@ const Posts = () => {
                 isUseDisabled={false}
                 options={adminConst.postQueryOptions}
                 onOptionSelected={(queryOption) =>
-                    router.push(`/admin/posts/1?queryOption=${queryOption}`)
+                    router.push(`/admin/1?queryOption=${queryOption}`)
                 }
                 value={queryOption}
             />

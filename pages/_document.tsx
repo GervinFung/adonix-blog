@@ -7,7 +7,7 @@ import Document, {
     Html,
 } from 'next/document';
 
-export default class MyDocument extends Document {
+export default class Doc extends Document {
     static getInitialProps = async (ctx: DocumentContext) => {
         const { renderPage: originalRenderPage } = ctx;
 

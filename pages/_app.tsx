@@ -10,14 +10,14 @@ import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ToastContainer } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
-import { AdonisAdmin, onAdminStateChanged } from '../src/auth';
+import { AdonixAdmin, onAdminStateChanged } from '../src/auth';
 
 const AdonixBlogContext = React.createContext({
+    admin: undefined as AdonixAdmin,
     theme: {
         isDarkMode: false,
         setIsDarkMode: () => {},
     },
-    admin: undefined as AdonisAdmin,
 });
 
 const App = ({ Component, pageProps }: AppProps) => {
@@ -130,7 +130,7 @@ const App = ({ Component, pageProps }: AppProps) => {
                   `}
                 />
                 <ToastContainer />
-                <Layout title="Adonix Blog">
+                <Layout title="Adonix | Blog">
                     <Component {...pageProps} />
                 </Layout>
             </ThemeProvider>
