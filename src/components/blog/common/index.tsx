@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import { useRouter } from 'next/router';
 import { blue } from '@mui/material/colors';

@@ -1,6 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import promisifyMongoDb from '../../../../../src/database/mongo';
-import cors from '../../../../../src/util/api/route/cors';
+import cors, { EndPointFunc } from '../../../../../src/util/api/route/cors';
 import { formObjectIdFromString } from '../../../../../src/database/mongo/util';
 import { AdminHandlePost } from '../../../../../src/common/type/post';
 import blogPropsParser from '../../../../../src/parser/blog';
@@ -9,7 +8,7 @@ import adminPropsParser from '../../../../../src/parser/admin';
 
 type Response = AdminHandlePost;
 
-export default async (req: NextApiRequest, res: NextApiResponse<Response>) => {
+const query: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { query } = req;
     const { postCollection } = await promisifyMongoDb;
@@ -50,3 +49,5 @@ export default async (req: NextApiRequest, res: NextApiResponse<Response>) => {
             });
     }
 };
+
+export default query;

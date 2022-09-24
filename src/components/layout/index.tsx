@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Head from 'next/head';
 import Footer from '../common/footer';
 import Header from '../common/header';
@@ -22,6 +22,14 @@ const Layout = ({
         threshold: 400,
     });
 
+    const url = 'https://adonix-blog.vercel.app';
+    const description =
+        'The Personal Blog of PoolOfDeath20 | GervinFung, where I write just about anything and share my knowledge or experiences';
+
+    const iconPath = '/images/icon';
+
+    const dimensions = [48, 72, 96, 144, 192, 256, 384, 512] as const;
+
     return (
         <div
             style={{
@@ -38,28 +46,100 @@ const Layout = ({
             </Head>
             <DefaultSeo
                 title={title}
-                titleTemplate={title}
+                canonical={url}
                 defaultTitle={title}
-                description="PoolOfDeath20 or GervinFung's blog"
-                canonical="https://adonix-blog.vercel.app"
-                openGraph={{
-                    title,
-                    url: 'https://adonix-blog.vercel.app',
-                    description: "PoolOfDeath20 or GervinFung's blog",
-                    images: [
-                        {
-                            url: '/og-image.png',
-                            width: 800,
-                            height: 420,
-                            alt: 'Adonix - The Blog of PoolOfDeath20',
-                        },
-                    ],
-                }}
+                titleTemplate={title}
+                description={description}
                 twitter={{
-                    handle: '@adonix',
-                    site: '@adonix',
+                    handle: '@adonix-blog',
+                    site: '@adonix-blog',
                     cardType: 'summary_large_image',
                 }}
+                openGraph={{
+                    url,
+                    title,
+                    description,
+                    images: dimensions.map((dimension) => ({
+                        alt: description,
+                        width: dimension,
+                        height: dimension,
+                        url: `${iconPath}/icon-${dimension}x${dimension}.png`,
+                    })),
+                }}
+                additionalMetaTags={[
+                    {
+                        name: 'keyword',
+                        content:
+                            'Gervin Fung Da Xuen, PoolOfDeath20, NextJS, Blog, Adonix Blog, Adonix, Adonis OS',
+                    },
+                    {
+                        name: 'author',
+                        content: 'PoolOfDeath20 | Gervin Fung Da Xuen',
+                    },
+                    {
+                        name: 'viewport',
+                        content: 'width=device-width, initial-scale=1',
+                    },
+                    {
+                        name: 'mobile-web-app-capable',
+                        content: 'yes',
+                    },
+                    {
+                        name: 'apple-mobile-web-app-capable',
+                        content: 'yes',
+                    },
+                    {
+                        name: 'application-name',
+                        content: 'Adonix',
+                    },
+                    {
+                        name: 'application-mobile-web-app-title',
+                        content: 'Adonix',
+                    },
+                    {
+                        name: 'theme-color',
+                        content: '#000D0D',
+                    },
+                    {
+                        name: 'msapplication-navbutton-color',
+                        content: '#000D0D',
+                    },
+                    {
+                        name: 'apple-mobile-web-app-status-bar-style',
+                        content: '#000D0D',
+                    },
+                    {
+                        name: 'msapplication-starturl',
+                        content: 'index.html',
+                    },
+                ]}
+                additionalLinkTags={[
+                    {
+                        rel: 'icon',
+                        type: 'image/x-icon',
+                        href: `${iconPath}/favicon.ico`,
+                    },
+                    {
+                        rel: 'apple-touch-icon',
+                        type: 'image/x-icon',
+                        href: `${iconPath}/favicon.ico`,
+                    },
+                    ...dimensions.flatMap((dimension) => {
+                        const sizes = `${dimension}x${dimension}`;
+                        const href = `${iconPath}/icon-${sizes}.png`;
+                        const icon = {
+                            href,
+                            sizes,
+                            rel: 'icon',
+                        };
+                        const appleTouchIcon = {
+                            href,
+                            sizes,
+                            rel: 'apple-touch-icon',
+                        };
+                        return [icon, appleTouchIcon];
+                    }),
+                ]}
             />
             <Header />
             <div

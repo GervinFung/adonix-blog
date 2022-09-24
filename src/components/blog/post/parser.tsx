@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import ReactMarkdown from 'react-markdown';

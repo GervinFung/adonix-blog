@@ -1,17 +1,16 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import promisifyMongoDb from '../../../../src/database/mongo';
 import {
     AdminHandlePosts,
     UserReadPosts,
 } from '../../../../src/common/type/post';
 import blogPropsParser from '../../../../src/parser/blog';
-import cors from '../../../../src/util/api/route/cors';
+import cors, { EndPointFunc } from '../../../../src/util/api/route/cors';
 import adminPropsParser from '../../../../src/parser/admin';
 import authApi from '../../../../src/auth/api';
 
 type Response = UserReadPosts | AdminHandlePosts;
 
-export default async (req: NextApiRequest, res: NextApiResponse<Response>) => {
+const paginated: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { query } = req;
     const { paginated } = blogPropsParser();
@@ -62,3 +61,5 @@ export default async (req: NextApiRequest, res: NextApiResponse<Response>) => {
             });
     }
 };
+
+export default paginated;

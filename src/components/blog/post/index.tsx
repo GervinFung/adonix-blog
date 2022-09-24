@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import adonixAxios from '../../../axios';
 import { api } from '../../../util/const';
 import blogPropsParser from '../../../parser/blog';
