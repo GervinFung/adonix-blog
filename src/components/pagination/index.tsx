@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Pagination from '@mui/material/Pagination';
 
 const BasicPagination = ({

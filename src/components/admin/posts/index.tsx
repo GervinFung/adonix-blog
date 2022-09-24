@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { parseAsString } from 'parse-dont-validate';
 import adonixAxios from '../../../axios';

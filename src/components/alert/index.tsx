@@ -1,5 +1,5 @@
 import Alert from '@mui/material/Alert';
-import * as React from 'react';
+import React from 'react';
 
 type Message = Readonly<{
     message: string;

@@ -1,5 +1,4 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import cors from '../../../src/util/api/route/cors';
+import cors, { EndPointFunc } from '../../../src/util/api/route/cors';
 import auth from '../../../src/auth/api';
 import adminPropsParser from '../../../src/parser/admin';
 import promisifyMongoDb from '../../../src/database/mongo';
@@ -9,7 +8,7 @@ type Response = Readonly<{
     message: string;
 }>;
 
-export default async (req: NextApiRequest, res: NextApiResponse<Response>) => {
+const login: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { body } = req;
     const token = adminPropsParser().auth.parseAsToken(body.token);
@@ -37,3 +36,5 @@ export default async (req: NextApiRequest, res: NextApiResponse<Response>) => {
         message: 'valid',
     });
 };
+
+export default login;

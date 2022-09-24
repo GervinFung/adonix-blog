@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { parseAsString } from 'parse-dont-validate';
 import { useRouter } from 'next/router';
 import { PublishedPosts } from '../../../common/type/post';

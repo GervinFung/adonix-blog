@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import SignIn from '../../src/components/admin/auth/sign-in';
 import Posts from '../../src/components/admin/posts';
 import { AdonixBlogContext } from '../_app';

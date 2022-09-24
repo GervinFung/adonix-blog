@@ -35,33 +35,20 @@ clean-up:
 start:
 	$(next) start
 
-## lint
-eslint:
-	$(NODE_BIN)eslint $(folder)/** -f='stylish' --color
-
-lint-src:
-	make eslint folder=src
-
-lint-test:
-	make eslint folder=test
-
-lint:
-	(trap 'kill 0' INT; make lint-src & make lint-test)
-
 ## format
 prettier=$(NODE_BIN)prettier
-
-prettify-src:
-	$(prettier) --$(type) src/
-
-prettify-test:
-	$(prettier) --$(type) test/
+prettify:
+	$(prettier) --$(type) src/ test/
 
 format-check:
-	(trap 'kill 0' INT; make prettify-src type=check & make prettify-test type=check)
+	make prettify type=check
 
 format:
-	(trap 'kill 0' INT; make prettify-src type=write & make prettify-test type=write)
+	make prettify type=write
+
+## lint
+lint:
+	$(NODE_BIN)eslint src/ test/ -f='stylish' --color
 
 ## typecheck
 tsc=$(NODE_BIN)tsc
@@ -77,8 +64,6 @@ test:
 	$(NODE_BIN)esbuild test/index.ts --sourcemap --bundle --minify --target=node16.3.1 --platform=node --outfile=__test__/index.test.js &&\
 		$(NODE_BIN)jest __test__
 
-## mongo setup and installation
-# ref: https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-20-04
 install-mongo:
 	sudo apt-get install gnupg
 	wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -

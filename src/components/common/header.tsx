@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -28,11 +28,11 @@ const Header = () => {
     const defaultLinks = [
         {
             name: 'About',
-            link: 'https://poolofdeath20.herokuapp.com/about',
+            link: 'https://poolofdeath20.vercel.app/about',
         },
         {
             name: 'GitHub',
-            link: 'https://github.com/GervinFung/',
+            link: 'https://github.com/GervinFung',
         },
         {
             name: 'Posts',
