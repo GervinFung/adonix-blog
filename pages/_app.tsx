@@ -127,6 +127,9 @@ const App = ({ Component, pageProps }: AppProps) => {
                             border-radius: 9999px;
                             background-color: gray;
                         }
+                        .Toastify__toast-body {
+                            font-family: 'JetBrains Mono';
+                        }
                   `}
                 />
                 <ToastContainer />
