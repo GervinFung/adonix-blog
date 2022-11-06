@@ -1,6 +1,8 @@
 import { TestCases } from '.';
 import { PublishedPosts } from '../../../../../src/common/type/post';
 import blogParser from '../../../../../src/parser/blog';
+import testCases from 'cases-of-test';
+import { describe } from 'vitest';
 
 const testPublished = ({
     parseAsValidPosts,
@@ -11,9 +13,13 @@ const testPublished = ({
         const {
             paginated: { parseAsPublishedPosts },
         } = blogParser();
-        parseAsValidPosts(parseAsPublishedPosts);
-        parseInvalidPostsThrowError(parseAsPublishedPosts);
-        parseAsEmptyPosts(parseAsPublishedPosts);
+        testCases({
+            tests: [
+                [() => parseAsValidPosts(parseAsPublishedPosts)],
+                [() => parseInvalidPostsThrowError(parseAsPublishedPosts)],
+                [() => parseAsEmptyPosts(parseAsPublishedPosts)],
+            ],
+        });
     });
 
 export default testPublished;

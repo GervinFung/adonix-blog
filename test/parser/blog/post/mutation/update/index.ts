@@ -3,6 +3,7 @@ import { DateTime } from '../../query';
 import testDeleted from './delete';
 import testPublished from './published';
 import testUnpublished from './unpublished';
+import { describe, expect, it } from 'vitest';
 
 type TestCasesCallBack<Post> = (post: unknown) => Post;
 
@@ -29,32 +30,33 @@ const testUpdate = (dummyDataCommonProps: DummyData) => {
                             [time]: new Date(dateTime),
                         })),
                 parseInvalidPostThrowError: (parse) =>
-                    it('should fail to parse invalid post and throw error', () => {
-                        expect(() =>
+                    it.each([
+                        () =>
                             parse({
                                 ...dummyData,
                                 title: undefined,
-                            })
-                        ).toThrowError();
-                        expect(() =>
+                            }),
+                        () =>
                             parse({
                                 ...dummyData,
                                 description: undefined,
-                            })
-                        ).toThrowError();
-                        expect(() =>
+                            }),
+                        () =>
                             parse({
                                 ...dummyData,
                                 content: undefined,
-                            })
-                        ).toThrowError();
-                        expect(() =>
+                            }),
+                        () =>
                             parse({
                                 ...dummyData,
                                 [time]: undefined,
-                            })
-                        ).toThrowError();
-                    }),
+                            }),
+                    ])(
+                        'should fail to parse "%p" as valid post and throw error',
+                        (parse) => {
+                            expect(parse).toThrowError();
+                        }
+                    ),
             };
         };
 

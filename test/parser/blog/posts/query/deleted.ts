@@ -1,6 +1,8 @@
 import { TestCases } from '.';
 import { DeletedPosts } from '../../../../../src/common/type/post';
 import blogParser from '../../../../../src/parser/blog';
+import testCases from 'cases-of-test';
+import { describe } from 'vitest';
 
 const testDeleted = ({
     parseAsValidPosts,
@@ -11,9 +13,13 @@ const testDeleted = ({
         const {
             paginated: { parseAsDeletedPosts },
         } = blogParser();
-        parseAsValidPosts(parseAsDeletedPosts);
-        parseInvalidPostsThrowError(parseAsDeletedPosts);
-        parseAsEmptyPosts(parseAsDeletedPosts);
+        testCases({
+            tests: [
+                [() => parseAsValidPosts(parseAsDeletedPosts)],
+                [() => parseInvalidPostsThrowError(parseAsDeletedPosts)],
+                [() => parseAsEmptyPosts(parseAsDeletedPosts)],
+            ],
+        });
     });
 
 export default testDeleted;

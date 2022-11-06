@@ -1,5 +1,6 @@
-import { DummyData } from '.';
-import blogPropsParser from '../../../../../src/parser/blog';
+import { DummyData } from '..';
+import blogPropsParser from '../../../../../../src/parser/blog';
+import { describe, expect, it } from 'vitest';
 
 const testInsert = (dummyData: DummyData) => {
     describe('Insert', () => {
@@ -9,25 +10,24 @@ const testInsert = (dummyData: DummyData) => {
         it('should parse data as valid insert post', () => {
             expect(parseAsInsertPost(dummyData)).toStrictEqual(dummyData);
         });
-        it('should fail to parse and throw error', () => {
-            expect(() =>
+        it.each([
+            () =>
                 parseAsInsertPost({
                     ...dummyData,
                     title: undefined,
-                })
-            ).toThrowError();
-            expect(() =>
+                }),
+            () =>
                 parseAsInsertPost({
                     ...dummyData,
                     description: undefined,
-                })
-            ).toThrowError();
-            expect(() =>
+                }),
+            () =>
                 parseAsInsertPost({
                     ...dummyData,
                     content: undefined,
-                })
-            ).toThrowError();
+                }),
+        ])('should fail to parse "%p" and throw error', (parseAsInsertPost) => {
+            expect(parseAsInsertPost).toThrowError();
         });
     });
 };

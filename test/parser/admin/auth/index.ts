@@ -1,4 +1,5 @@
 import adminPropsParser from '../../../../src/parser/admin';
+import { describe, it, expect } from 'vitest';
 
 const testTokenParser = () =>
     describe('Token Parser', () => {
@@ -8,14 +9,18 @@ const testTokenParser = () =>
             expect(auth.parseAsToken(token)).toBe(token);
             expect(auth.parseAsNullableToken(token)).toBe(token);
         });
-        it('should parse non-string value as undefinnd', () => {
-            expect(() => auth.parseAsToken(23)).toThrowError();
-            expect(() => auth.parseAsToken(true)).toThrowError();
-        });
-        it('should fail to parse non-string value and throw error', () => {
-            expect(auth.parseAsNullableToken(23)).toBeUndefined();
-            expect(auth.parseAsNullableToken(true)).toBeUndefined();
-        });
+        it.each([23, true])(
+            'should fail to parse non-string value token (%p) and throw error',
+            (value) => {
+                expect(() => auth.parseAsToken(value)).toThrowError();
+            }
+        );
+        it.each([23, true])(
+            'should parse non-string value "%p" as nullable token as undefined',
+            (value) => {
+                expect(auth.parseAsNullableToken(value)).toBeUndefined();
+            }
+        );
     });
 
 export default testTokenParser;

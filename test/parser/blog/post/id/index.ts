@@ -1,20 +1,23 @@
 import blogParser from '../../../../../src/parser/blog';
+import { describe, expect, it } from 'vitest';
 
 const testIdParser = () =>
     describe('Id Parser', () => {
         const {
             one: { parseAsId },
         } = blogParser();
-        it('should parse valid id', () => {
-            const idOne = '507f191e810c19729de860ea';
-            expect(parseAsId(idOne)).toStrictEqual(idOne);
-            const idTwo = 'hey';
-            expect(parseAsId(idTwo)).toStrictEqual(idTwo);
-        });
-        it('should fail to parse invalid id and throw error', () => {
-            expect(() => parseAsId(undefined)).toThrowError();
-            expect(() => parseAsId(123)).toThrowError();
-        });
+        it.each(['507f191e810c19729de860ea', 'hey'])(
+            'should parse "%s" as valid id',
+            (id) => {
+                expect(parseAsId(id)).toStrictEqual(id);
+            }
+        );
+        it.each([undefined, 123])(
+            'should fail to parse "%p" as invalid id and throw error',
+            (id) => {
+                expect(() => parseAsId(id)).toThrowError();
+            }
+        );
     });
 
 export default testIdParser;
