@@ -1,7 +1,7 @@
 import cors, { EndPointFunc } from '../../../src/util/api/route/cors';
 import auth from '../../../src/auth/api';
 import adminPropsParser from '../../../src/parser/admin';
-import promisifyMongoDb from '../../../src/database/mongo';
+import Database from '../../../src/database/mongo';
 import { Aud } from '../../../src/common/type/auth-record';
 
 type Response = Readonly<{
@@ -13,7 +13,8 @@ const login: EndPointFunc<Response> = async (req, res) => {
     const { body } = req;
     const token = adminPropsParser().auth.parseAsToken(body.token);
 
-    const mongo = await promisifyMongoDb;
+    const database = await Database.instance();
+
     const verifiedId = await auth.verifyIdToken(token);
     const { email, aud, uid, auth_time: authTime } = verifiedId;
     const data = {
@@ -27,7 +28,7 @@ const login: EndPointFunc<Response> = async (req, res) => {
         throw new Error(`Email is undefined for token of ${token}`);
     }
 
-    await mongo.authRecordCollection.insertOne({
+    await database.authRecordCollection().insertOne({
         ...data,
         email,
     });

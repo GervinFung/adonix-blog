@@ -2,6 +2,8 @@ import { DateTime } from '../../post/query';
 import testDeleted from './deleted';
 import testPublished from './published';
 import testUnpublished from './unpublished';
+import testCases from 'cases-of-test';
+import { describe, expect, it } from 'vitest';
 
 type TestCasesCallBack<Posts> = (post: unknown) => Posts;
 
@@ -31,10 +33,12 @@ const testPostsParser = () => {
             }));
             return {
                 parseAsEmptyPosts: (parse) =>
-                    it('should fail to parse invalid posts and return empty posts', () => {
-                        expect(parse('123')).toStrictEqual([]);
-                        expect(parse({ wifi: '123' })).toStrictEqual([]);
-                    }),
+                    it.each(['123', { wifi: '123' }])(
+                        'should fail to parse "%p" as valid posts and return empty posts',
+                        (posts) => {
+                            expect(parse(posts)).toStrictEqual([]);
+                        }
+                    ),
                 parseAsValidPosts: (parse) =>
                     it('should parse valid posts', () => {
                         expect(
@@ -47,36 +51,40 @@ const testPostsParser = () => {
                         ).toStrictEqual(dummyDatas);
                     }),
                 parseInvalidPostsThrowError: (parse) =>
-                    it('should fail to parse invalid properties of posts and throw error', () => {
-                        expect(() =>
+                    it.each([
+                        () =>
                             parse(
                                 dummyDatas.map(({ id: _, ...props }) => props)
-                            )
-                        ).toThrowError();
-                        expect(() =>
+                            ),
+                        () =>
                             parse(
                                 dummyDatas.map(
                                     ({ description: _, ...props }) => props
                                 )
-                            )
-                        ).toThrowError();
-                        expect(() =>
+                            ),
+                        () =>
                             parse(
                                 dummyDatas.map(
                                     ({ title: _, ...props }) => props
                                 )
-                            )
-                        ).toThrowError();
-                        expect(() =>
-                            parse(dummyDatasCommonProps)
-                        ).toThrowError();
-                    }),
+                            ),
+                        () => parse(dummyDatasCommonProps),
+                    ])(
+                        'should fail to parse "%p" as valid properties of posts and throw error',
+                        (parse) => {
+                            expect(parse).toThrowError();
+                        }
+                    ),
             };
         };
 
-        testDeleted(generateTestCases('timeDeleted'));
-        testUnpublished(generateTestCases('timeCreated'));
-        testPublished(generateTestCases('timePublished'));
+        testCases({
+            tests: [
+                [() => testDeleted(generateTestCases('timeDeleted'))],
+                [() => testUnpublished(generateTestCases('timeCreated'))],
+                [() => testPublished(generateTestCases('timePublished'))],
+            ],
+        });
     });
 };
 

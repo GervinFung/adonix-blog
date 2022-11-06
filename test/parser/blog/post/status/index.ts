@@ -1,20 +1,24 @@
 import blogParser from '../../../../../src/parser/blog';
 import { admin } from '../../../../../src/util/const';
+import { describe, expect, it } from 'vitest';
 
 const testUpdateStatusParser = () =>
     describe('Update Status Parser', () => {
         const {
             one: { parseAsUpdatePostStatus },
         } = blogParser();
-        it('should parse valid status', () => {
-            admin.updatePostStatus.every((status) =>
-                expect(parseAsUpdatePostStatus(status)).toBe(status)
-            );
-        });
-        it('should fail to parse invalid status and throw error', () => {
-            expect(() => parseAsUpdatePostStatus(undefined)).toThrowError();
-            expect(() => parseAsUpdatePostStatus(123)).toThrowError();
-        });
+        it.each(admin.updatePostStatus)(
+            'should parse "%s" as valid status',
+            (status) => {
+                expect(parseAsUpdatePostStatus(status)).toBe(status);
+            }
+        );
+        it.each([undefined, 123])(
+            'should fail to parse "%p" as valid status and throw error',
+            (status) => {
+                expect(() => parseAsUpdatePostStatus(status)).toThrowError();
+            }
+        );
     });
 
 export default testUpdateStatusParser;

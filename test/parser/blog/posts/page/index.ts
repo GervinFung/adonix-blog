@@ -1,4 +1,5 @@
 import blogParser from '../../../../../src/parser/blog';
+import { describe, expect, it } from 'vitest';
 
 const testPageParser = () =>
     describe('Page Parser', () => {

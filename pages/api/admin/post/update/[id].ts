@@ -1,7 +1,7 @@
 import cors, { EndPointFunc } from '../../../../../src/util/api/route/cors';
 import auth from '../../../../../src/auth/api';
 import adminPropsParser from '../../../../../src/parser/admin';
-import promisifyMongoDb from '../../../../../src/database/mongo';
+import Database from '../../../../../src/database/mongo';
 import blogPropsParser from '../../../../../src/parser/blog';
 import { ObjectId } from 'mongodb';
 import { isAllTextValid } from '../../../../../src/common/validation';
@@ -22,7 +22,7 @@ const update: EndPointFunc<Response> = async (req, res) => {
 
     const { posts } = adminPropsParser();
 
-    const mongo = await promisifyMongoDb;
+    const database = await Database.instance();
 
     const objectId = new ObjectId(id);
 
@@ -31,33 +31,27 @@ const update: EndPointFunc<Response> = async (req, res) => {
             case 'published': {
                 const post = one.parseAsUpdatePublishedPost(body.post);
                 if (isAllTextValid(post)) {
-                    return await mongo.postCollection.updatePublishedOne(
-                        post,
-                        objectId,
-                        new Date()
-                    );
+                    return await database
+                        .postCollection()
+                        .updatePublishedOne(post, objectId, new Date());
                 }
                 break;
             }
             case 'unpublished': {
                 const post = one.parseAsUpdateUnpublishedPost(body.post);
                 if (isAllTextValid(post)) {
-                    return await mongo.postCollection.updateUnpublishedOne(
-                        post,
-                        objectId,
-                        new Date()
-                    );
+                    return await database
+                        .postCollection()
+                        .updateUnpublishedOne(post, objectId, new Date());
                 }
                 break;
             }
             case 'deleted': {
                 const post = one.parseAsUpdateDeletedPost(body.post);
                 if (isAllTextValid(post)) {
-                    return await mongo.postCollection.updateDeletedOne(
-                        post,
-                        objectId,
-                        new Date()
-                    );
+                    return await database
+                        .postCollection()
+                        .updateDeletedOne(post, objectId, new Date());
                 }
                 break;
             }
@@ -74,16 +68,16 @@ const update: EndPointFunc<Response> = async (req, res) => {
     const updatedStatusId = await (async () => {
         switch (posts.parseAsNullablePostStatus(body.status)) {
             case 'publish': {
-                return await mongo.postCollection.publishOne(objectId);
+                return await database.postCollection().publishOne(objectId);
             }
             case 'restore': {
-                return await mongo.postCollection.restoreOne(objectId);
+                return await database.postCollection().restoreOne(objectId);
             }
             case 'unpublish': {
-                return await mongo.postCollection.unpublishOne(objectId);
+                return await database.postCollection().unpublishOne(objectId);
             }
             case 'delete': {
-                return await mongo.postCollection.deleteOne(objectId);
+                return await database.postCollection().deleteOne(objectId);
             }
         }
         return undefined;

@@ -1,4 +1,4 @@
-import promisifyMongoDb from '../../../../src/database/mongo';
+import Database from '../../../../src/database/mongo';
 import {
     AdminHandlePosts,
     UserReadPosts,
@@ -14,7 +14,7 @@ const paginated: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { query } = req;
     const { paginated } = blogPropsParser();
-    const { postCollection } = await promisifyMongoDb;
+    const { postCollection } = await Database.instance();
 
     const { auth, posts } = adminPropsParser();
 
@@ -23,8 +23,8 @@ const paginated: EndPointFunc<Response> = async (req, res) => {
 
     if (!token) {
         return res.status(200).json({
-            totalPosts: await postCollection.totalPublishedPosts(),
-            posts: await postCollection.showManyPublished({
+            totalPosts: await postCollection().totalPublishedPosts(),
+            posts: await postCollection().showManyPublished({
                 skip,
             }),
         });
@@ -38,24 +38,24 @@ const paginated: EndPointFunc<Response> = async (req, res) => {
         case 'published':
             return res.status(200).json({
                 type,
-                totalPosts: await postCollection.totalPublishedPosts(),
-                posts: await postCollection.showManyPublished({
+                totalPosts: await postCollection().totalPublishedPosts(),
+                posts: await postCollection().showManyPublished({
                     skip,
                 }),
             });
         case 'unpublished':
             return res.status(200).json({
                 type,
-                totalPosts: await postCollection.totalUnpublishedPosts(),
-                posts: await postCollection.showManyUnpublished({
+                totalPosts: await postCollection().totalUnpublishedPosts(),
+                posts: await postCollection().showManyUnpublished({
                     skip,
                 }),
             });
         case 'deleted':
             return res.status(200).json({
                 type,
-                totalPosts: await postCollection.totalDeletedPosts(),
-                posts: await postCollection.showManyDeleted({
+                totalPosts: await postCollection().totalDeletedPosts(),
+                posts: await postCollection().showManyDeleted({
                     skip,
                 }),
             });

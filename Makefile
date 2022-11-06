@@ -17,11 +17,28 @@ install:
 ## dev
 next=$(NODE_BIN)next
 
-clear-cache:
+clear-cache: 
 	rm -rf .next
 
-dev: clear-cache
+dev: clear-cache development
 	$(next) dev
+
+## env
+development:
+	cp .env.development .env
+
+staging:
+	cp .env.staging .env
+
+production:
+	cp .env.production .env
+
+## deployment
+vercel-staging: staging
+	vercel
+
+vercel-production: production
+	vercel --prod
 
 ## build
 build: clear-cache
@@ -61,8 +78,7 @@ typecheck-watch:
 
 ## test
 test:
-	$(NODE_BIN)esbuild test/index.ts --sourcemap --bundle --minify --target=node16.3.1 --platform=node --outfile=__test__/index.test.js &&\
-		$(NODE_BIN)jest __test__
+	$(NODE_BIN)vitest
 
 install-mongo:
 	sudo apt-get install gnupg

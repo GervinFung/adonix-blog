@@ -1,6 +1,8 @@
 import { TestCases } from '.';
 import { UpdateUnpublishedPost } from '../../../../../../src/common/type/post';
 import blogPropsParser from '../../../../../../src/parser/blog';
+import testCases from 'cases-of-test';
+import { describe } from 'vitest';
 
 const testUnpublished = ({
     parseAsValidPost,
@@ -8,8 +10,17 @@ const testUnpublished = ({
 }: TestCases<UpdateUnpublishedPost>) =>
     describe('Unpublished', () => {
         const { one } = blogPropsParser();
-        parseAsValidPost(one.parseAsUpdateUnpublishedPost);
-        parseInvalidPostThrowError(one.parseAsUpdateUnpublishedPost);
+        testCases({
+            tests: [
+                [() => parseAsValidPost(one.parseAsUpdateUnpublishedPost)],
+                [
+                    () =>
+                        parseInvalidPostThrowError(
+                            one.parseAsUpdateUnpublishedPost
+                        ),
+                ],
+            ],
+        });
     });
 
 export default testUnpublished;

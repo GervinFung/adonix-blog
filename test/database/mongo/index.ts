@@ -1,13 +1,16 @@
-import promiseifyMongoDb from '../../../src/database/mongo';
+import Database from '../../../src/database/mongo';
 import testPost from './post';
 import testAuthRecord from './auth-record';
+import testCases from 'cases-of-test';
+import { afterAll, describe } from 'vitest';
 
 const testMongo = () =>
     describe('MongoDB', () => {
-        testAuthRecord();
-        testPost();
+        testCases({
+            tests: [[testAuthRecord], [testPost]],
+        });
         afterAll(async () => {
-            (await promiseifyMongoDb).close();
+            (await Database.instance()).close();
         });
     });
 

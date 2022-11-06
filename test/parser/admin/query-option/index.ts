@@ -1,22 +1,24 @@
 import adminPropsParser from '../../../../src/parser/admin';
 import { admin } from '../../../../src/util/const';
+import { describe, it, expect } from 'vitest';
 
 const testQueryOptionParser = () =>
     describe('Query Option Parser', () => {
         const { posts } = adminPropsParser();
-        it('should parse valid option', () => {
-            admin.postQueryOptions.every((option) =>
-                expect(posts.parseAsPostQueryOption(option)).toBe(option)
-            );
-        });
-        it('should parse as nullable option', () => {
-            [...admin.postQueryOptions, undefined].every((option) =>
-                expect(posts.parseAsPostQueryOption(option)).toBe(option)
-            );
-        });
-        it('should fail to pass invalid option and throw error', () => {
-            expect(() => posts.parseAsPostQueryOption('option')).toThrowError();
-        });
+        it.each(admin.postQueryOptions)(
+            'should parse "%s" as valid option',
+            (option) => {
+                expect(posts.parseAsPostQueryOption(option)).toBe(option);
+            }
+        );
+        it.each(['option', undefined])(
+            'should fail to parse "%s" as valid option and throw error',
+            (option) => {
+                expect(() =>
+                    posts.parseAsPostQueryOption(option)
+                ).toThrowError();
+            }
+        );
     });
 
 export default testQueryOptionParser;

@@ -1,4 +1,5 @@
 import nullableToUndefinedPropsParser from '../../../src/parser/type';
+import { describe, it, expect } from 'vitest';
 
 const testNullToUndefinedParser = () =>
     describe('Nullable to default or undefined parser', () => {

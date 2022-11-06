@@ -4,10 +4,15 @@ import testType from './parser/type';
 import testMongo from './database/mongo';
 import testAdminPropsParser from './parser/admin';
 import testValidation from './common/validation';
+import testCases from 'cases-of-test';
 
-testBlogPostsParser();
-testBlogPostParser();
-testAdminPropsParser();
-testType();
-testMongo();
-testValidation();
+testCases({
+    tests: [
+        [testBlogPostsParser],
+        [testBlogPostParser],
+        [testAdminPropsParser],
+        [testType],
+        [testMongo],
+        [testValidation],
+    ],
+});
