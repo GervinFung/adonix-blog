@@ -6,40 +6,39 @@ import {
 } from '../../common/type/auth-record';
 import { assertUpdateOneComplete } from './util';
 
-const authRecordCollection = (getAuthRecord: () => Collection<Document>) => {
-    return {
-        // testing purpose only
-        clear: async () => await getAuthRecord().deleteMany({}),
-        insertOne: async (auth: InsertAuth): Promise<ObjectId> => {
-            const { acknowledged, insertedId } =
-                await getAuthRecord().insertOne(auth);
-            if (!acknowledged) {
-                throw new Error(`Insert login ${auth} failed`);
-            }
-            return insertedId;
-        },
-        updateOne: async (
-            filter: FilterForUpdateAuth,
-            { timeLoggedOut }: UpdateAuth
-        ) =>
-            assertUpdateOneComplete(
-                await getAuthRecord().updateOne(
-                    {
-                        ...filter,
-                        timeLoggedOut: undefined,
-                    },
-                    {
-                        $set: {
-                            timeLoggedOut,
-                        },
-                    }
-                ),
+export default class AuthRecord {
+    constructor(private readonly getAuthRecord: () => Collection<Document>) {}
+    // testing purpose only
+    readonly clear = async () => await this.getAuthRecord().deleteMany({});
+
+    readonly insertOne = async (auth: InsertAuth): Promise<ObjectId> => {
+        const { acknowledged, insertedId } =
+            await this.getAuthRecord().insertOne(auth);
+        if (!acknowledged) {
+            throw new Error(`Insert login ${auth} failed`);
+        }
+        return insertedId;
+    };
+
+    readonly updateOne = async (
+        filter: FilterForUpdateAuth,
+        { timeLoggedOut }: UpdateAuth
+    ) =>
+        assertUpdateOneComplete(
+            await this.getAuthRecord().updateOne(
                 {
-                    debugInfo: filter,
-                    infoToReturn: filter.authTime,
+                    ...filter,
+                    timeLoggedOut: undefined,
+                },
+                {
+                    $set: {
+                        timeLoggedOut,
+                    },
                 }
             ),
-    } as const;
-};
-
-export default authRecordCollection;
+            {
+                debugInfo: filter,
+                infoToReturn: filter.authTime,
+            }
+        );
+}

@@ -1,4 +1,4 @@
-import promisifyMongoDb from '../../../../../src/database/mongo';
+import Database from '../../../../../src/database/mongo';
 import cors, { EndPointFunc } from '../../../../../src/util/api/route/cors';
 import { formObjectIdFromString } from '../../../../../src/database/mongo/util';
 import { AdminHandlePost } from '../../../../../src/common/type/post';
@@ -11,7 +11,7 @@ type Response = AdminHandlePost;
 const query: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { query } = req;
-    const { postCollection } = await promisifyMongoDb;
+    const { postCollection } = await Database.instance();
 
     const { auth: authParser, posts } = adminPropsParser();
 
@@ -23,7 +23,7 @@ const query: EndPointFunc<Response> = async (req, res) => {
         case 'published':
             return res.status(200).json({
                 type,
-                post: await postCollection.showPublishedOne(
+                post: await postCollection().showPublishedOne(
                     formObjectIdFromString(
                         blogPropsParser().one.parseAsId(query.id)
                     )
@@ -32,7 +32,7 @@ const query: EndPointFunc<Response> = async (req, res) => {
         case 'unpublished':
             return res.status(200).json({
                 type,
-                post: await postCollection.showUnpublishedOne(
+                post: await postCollection().showUnpublishedOne(
                     formObjectIdFromString(
                         blogPropsParser().one.parseAsId(query.id)
                     )
@@ -41,7 +41,7 @@ const query: EndPointFunc<Response> = async (req, res) => {
         case 'deleted':
             return res.status(200).json({
                 type,
-                post: await postCollection.showDeletedOne(
+                post: await postCollection().showDeletedOne(
                     formObjectIdFromString(
                         blogPropsParser().one.parseAsId(query.id)
                     )

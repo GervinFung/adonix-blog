@@ -1,4 +1,4 @@
-import promiseifyMongoDb from '../../../src/database/mongo';
+import Database from '../../../src/database/mongo';
 import testPost from './post';
 import testAuthRecord from './auth-record';
 import testCases from 'cases-of-test';
@@ -10,7 +10,7 @@ const testMongo = () =>
             tests: [[testAuthRecord], [testPost]],
         });
         afterAll(async () => {
-            (await promiseifyMongoDb).close();
+            (await Database.instance()).close();
         });
     });
 

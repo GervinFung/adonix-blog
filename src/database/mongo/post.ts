@@ -21,8 +21,31 @@ type ShowManyOptions = Readonly<{
     skip: number;
 }>;
 
-const postCollection = (getPost: () => Collection<Document>) => {
-    const postQuery = (option: PostsQueryOption) => {
+export default class Post {
+    private readonly nullToUndefinedParser: ReturnType<
+        typeof nullableToUndefinedPropsParser
+    >;
+
+    constructor(private readonly getPost: () => Collection<Document>) {
+        this.nullToUndefinedParser = nullableToUndefinedPropsParser();
+    }
+
+    // testing purpose only
+    readonly clear = async () => await this.getPost().deleteMany({});
+
+    private readonly totalPosts = async (
+        queryOption: PostsQueryOption
+    ): Promise<number> =>
+        (await this.getPost().find(this.postQuery(queryOption)).toArray())
+            .length;
+
+    readonly totalUnpublishedPosts = () => this.totalPosts('unpublished');
+
+    readonly totalPublishedPosts = () => this.totalPosts('published');
+
+    readonly totalDeletedPosts = () => this.totalPosts('deleted');
+
+    private readonly postQuery = (option: PostsQueryOption) => {
         switch (option) {
             case 'unpublished':
                 return {
@@ -47,12 +70,9 @@ const postCollection = (getPost: () => Collection<Document>) => {
         }
     };
 
-    const totalPosts = async (queryOption: PostsQueryOption): Promise<number> =>
-        (await getPost().find(postQuery(queryOption)).toArray()).length;
-
-    const nullToUndefinedParser = nullableToUndefinedPropsParser();
-
-    const showOne = async <T = DeletedPost | PublishedPost | UnpublishedPost>(
+    private readonly showOne = async <
+        T = DeletedPost | PublishedPost | UnpublishedPost
+    >(
         id: ObjectId,
         type: PostsQueryOption
     ) => {
@@ -62,10 +82,10 @@ const postCollection = (getPost: () => Collection<Document>) => {
                 : type === 'unpublished'
                 ? 'timeCreated'
                 : 'timeDeleted';
-        const post = await getPost().findOne<T>(
+        const post = await this.getPost().findOne<T>(
             {
                 _id: id,
-                ...postQuery(type),
+                ...this.postQuery(type),
             },
             {
                 projection: {
@@ -79,10 +99,10 @@ const postCollection = (getPost: () => Collection<Document>) => {
             }
         );
         if (post) {
-            return nullToUndefinedParser.parseObject(post) as T;
+            return this.nullToUndefinedParser.parseObject(post) as T;
         }
         if (
-            !(await getPost().findOne<T>(
+            !(await this.getPost().findOne<T>(
                 {
                     _id: id,
                 },
@@ -100,7 +120,16 @@ const postCollection = (getPost: () => Collection<Document>) => {
         return undefined;
     };
 
-    const showMany = async <
+    readonly showDeletedOne = (id: ObjectId) =>
+        this.showOne<DeletedPost>(id, 'deleted');
+
+    readonly showUnpublishedOne = (id: ObjectId) =>
+        this.showOne<UnpublishedPost>(id, 'unpublished');
+
+    readonly showPublishedOne = (id: ObjectId) =>
+        this.showOne<PublishedPost>(id, 'published');
+
+    private readonly showMany = async <
         T extends UnpublishedPosts | PublishedPosts | DeletedPosts
     >(
         { skip }: ShowManyOptions,
@@ -113,8 +142,8 @@ const postCollection = (getPost: () => Collection<Document>) => {
                 ? 'timeCreated'
                 : 'timeDeleted';
         return (
-            await getPost()
-                .find<ChangeStringIdToMongoId<T[0]>>(postQuery(type), {
+            await this.getPost()
+                .find<ChangeStringIdToMongoId<T[0]>>(this.postQuery(type), {
                     projection: {
                         _id: 1,
                         title: 1,
@@ -135,19 +164,28 @@ const postCollection = (getPost: () => Collection<Document>) => {
         }));
     };
 
-    const updateOne = async <
+    readonly showManyUnpublished = (options: ShowManyOptions) =>
+        this.showMany<UnpublishedPosts>(options, 'unpublished');
+
+    readonly showManyPublished = (options: ShowManyOptions) =>
+        this.showMany<PublishedPosts>(options, 'published');
+
+    readonly showManyDeleted = (options: ShowManyOptions) =>
+        this.showMany<DeletedPosts>(options, 'deleted');
+
+    private readonly updateOne = async <
         T = UpdateDeletedPost | UpdatePublishedPost | UpdateUnpublishedPost
     >(
         post: T,
         queryOption: PostsQueryOption,
         id: ObjectId,
         timeUpdated: Date
-    ) => {
-        return assertUpdateOneComplete(
-            await getPost().updateOne(
+    ) =>
+        assertUpdateOneComplete(
+            await this.getPost().updateOne(
                 {
                     _id: id,
-                    ...postQuery(queryOption),
+                    ...this.postQuery(queryOption),
                 },
                 {
                     $set: {
@@ -161,160 +199,145 @@ const postCollection = (getPost: () => Collection<Document>) => {
                 infoToReturn: id,
             }
         );
-    };
 
-    return {
-        // testing purpose only
-        clear: async () => await getPost().deleteMany({}),
-        bulkInsert: async (
-            posts: ReadonlyArray<InsertPost>
-        ): Promise<
-            Readonly<{
-                [key: number]: ObjectId;
-            }>
-        > => {
-            const { acknowledged, insertedIds, insertedCount } =
-                await getPost().insertMany(Array.from(posts));
-            if (!(acknowledged && insertedCount === posts.length)) {
-                throw new Error(
-                    `Faulty insertion, acknowledged: ${acknowledged}, insertedCount: ${insertedCount} and length: ${posts.length}`
-                );
-            }
-            return insertedIds;
-        },
-        // general use
-        totalUnpublishedPosts: () => totalPosts('unpublished'),
-        totalPublishedPosts: () => totalPosts('published'),
-        totalDeletedPosts: () => totalPosts('deleted'),
-        showManyUnpublished: (options: ShowManyOptions) =>
-            showMany<UnpublishedPosts>(options, 'unpublished'),
-        showManyPublished: (options: ShowManyOptions) =>
-            showMany<PublishedPosts>(options, 'published'),
-        showManyDeleted: (options: ShowManyOptions) =>
-            showMany<DeletedPosts>(options, 'deleted'),
-        showDeletedOne: (id: ObjectId) => showOne<DeletedPost>(id, 'deleted'),
-        showUnpublishedOne: (id: ObjectId) =>
-            showOne<UnpublishedPost>(id, 'unpublished'),
-        showPublishedOne: (id: ObjectId) =>
-            showOne<PublishedPost>(id, 'published'),
-        insertOne: async (post: InsertPost): Promise<ObjectId> => {
-            const { acknowledged, insertedId } = await getPost().insertOne({
-                ...post,
-                timeDeleted: undefined,
-                timePublished: undefined,
-            });
-            if (!acknowledged) {
-                throw new Error(`Insert post ${post} failed`);
-            }
-            return insertedId;
-        },
-        deleteOne: async (id: ObjectId): Promise<ObjectId> =>
-            assertUpdateOneComplete(
-                await getPost().updateOne(
-                    {
-                        _id: id,
-                        timeDeleted: undefined,
-                    },
-                    {
-                        $set: {
-                            timeDeleted: new Date(),
-                            timeUpdated: new Date(),
-                            timePublished: undefined,
-                        },
-                    }
-                ),
+    readonly deleteOne = async (id: ObjectId): Promise<ObjectId> =>
+        assertUpdateOneComplete(
+            await this.getPost().updateOne(
                 {
-                    debugInfo: id,
-                    infoToReturn: id,
-                }
-            ),
-        restoreOne: async (id: ObjectId) =>
-            assertUpdateOneComplete(
-                await getPost().updateOne(
-                    {
-                        _id: id,
-                        timeDeleted: {
-                            $ne: undefined,
-                        },
-                    },
-                    {
-                        $set: {
-                            timeDeleted: undefined,
-                            timeUpdated: new Date(),
-                        },
-                    }
-                ),
+                    _id: id,
+                    timeDeleted: undefined,
+                },
                 {
-                    debugInfo: id,
-                    infoToReturn: id,
-                }
-            ),
-        updatePublishedOne: async (
-            post: UpdatePublishedPost,
-            id: ObjectId,
-            timeUpdated: Date
-        ): Promise<ObjectId> =>
-            updateOne<UpdatePublishedPost>(post, 'published', id, timeUpdated),
-        updateUnpublishedOne: async (
-            post: UpdateUnpublishedPost,
-            id: ObjectId,
-            timeUpdated: Date
-        ): Promise<ObjectId> =>
-            updateOne<UpdateUnpublishedPost>(
-                post,
-                'unpublished',
-                id,
-                timeUpdated
-            ),
-        updateDeletedOne: async (
-            post: UpdateDeletedPost,
-            id: ObjectId,
-            timeUpdated: Date
-        ): Promise<ObjectId> =>
-            updateOne<UpdateDeletedPost>(post, 'deleted', id, timeUpdated),
-        unpublishOne: async (id: ObjectId) =>
-            assertUpdateOneComplete(
-                await getPost().updateOne(
-                    {
-                        _id: id,
-                        timeDeleted: undefined,
-                        timePublished: {
-                            $ne: undefined,
-                        },
-                    },
-                    {
-                        $set: {
-                            timePublished: undefined,
-                            timeUpdated: new Date(),
-                        },
-                    }
-                ),
-                {
-                    debugInfo: id,
-                    infoToReturn: id,
-                }
-            ),
-        publishOne: async (id: ObjectId) =>
-            assertUpdateOneComplete(
-                await getPost().updateOne(
-                    {
-                        _id: id,
-                        timeDeleted: undefined,
+                    $set: {
+                        timeDeleted: new Date(),
+                        timeUpdated: new Date(),
                         timePublished: undefined,
                     },
-                    {
-                        $set: {
-                            timePublished: new Date(),
-                            timeUpdated: new Date(),
-                        },
-                    }
-                ),
-                {
-                    debugInfo: id,
-                    infoToReturn: id,
                 }
             ),
-    } as const;
-};
+            {
+                debugInfo: id,
+                infoToReturn: id,
+            }
+        );
 
-export default postCollection;
+    readonly updateUnpublishedOne = async (
+        post: UpdateUnpublishedPost,
+        id: ObjectId,
+        timeUpdated: Date
+    ): Promise<ObjectId> =>
+        this.updateOne<UpdateUnpublishedPost>(
+            post,
+            'unpublished',
+            id,
+            timeUpdated
+        );
+
+    readonly updateDeletedOne = async (
+        post: UpdateDeletedPost,
+        id: ObjectId,
+        timeUpdated: Date
+    ): Promise<ObjectId> =>
+        this.updateOne<UpdateDeletedPost>(post, 'deleted', id, timeUpdated);
+
+    readonly unpublishOne = async (id: ObjectId) =>
+        assertUpdateOneComplete(
+            await this.getPost().updateOne(
+                {
+                    _id: id,
+                    timeDeleted: undefined,
+                    timePublished: {
+                        $ne: undefined,
+                    },
+                },
+                {
+                    $set: {
+                        timePublished: undefined,
+                        timeUpdated: new Date(),
+                    },
+                }
+            ),
+            {
+                debugInfo: id,
+                infoToReturn: id,
+            }
+        );
+    readonly publishOne = async (id: ObjectId) =>
+        assertUpdateOneComplete(
+            await this.getPost().updateOne(
+                {
+                    _id: id,
+                    timeDeleted: undefined,
+                    timePublished: undefined,
+                },
+                {
+                    $set: {
+                        timePublished: new Date(),
+                        timeUpdated: new Date(),
+                    },
+                }
+            ),
+            {
+                debugInfo: id,
+                infoToReturn: id,
+            }
+        );
+
+    readonly updatePublishedOne = async (
+        post: UpdatePublishedPost,
+        id: ObjectId,
+        timeUpdated: Date
+    ): Promise<ObjectId> =>
+        this.updateOne<UpdatePublishedPost>(post, 'published', id, timeUpdated);
+
+    readonly bulkInsert = async (
+        posts: ReadonlyArray<InsertPost>
+    ): Promise<
+        Readonly<{
+            [key: number]: ObjectId;
+        }>
+    > => {
+        const { acknowledged, insertedIds, insertedCount } =
+            await this.getPost().insertMany(Array.from(posts));
+        if (!(acknowledged && insertedCount === posts.length)) {
+            throw new Error(
+                `Faulty insertion, acknowledged: ${acknowledged}, insertedCount: ${insertedCount} and length: ${posts.length}`
+            );
+        }
+        return insertedIds;
+    };
+
+    readonly insertOne = async (post: InsertPost): Promise<ObjectId> => {
+        const { acknowledged, insertedId } = await this.getPost().insertOne({
+            ...post,
+            timeDeleted: undefined,
+            timePublished: undefined,
+        });
+        if (!acknowledged) {
+            throw new Error(`Insert post ${post} failed`);
+        }
+        return insertedId;
+    };
+
+    readonly restoreOne = async (id: ObjectId) =>
+        assertUpdateOneComplete(
+            await this.getPost().updateOne(
+                {
+                    _id: id,
+                    timeDeleted: {
+                        $ne: undefined,
+                    },
+                },
+                {
+                    $set: {
+                        timeDeleted: undefined,
+                        timeUpdated: new Date(),
+                    },
+                }
+            ),
+            {
+                debugInfo: id,
+                infoToReturn: id,
+            }
+        );
+}

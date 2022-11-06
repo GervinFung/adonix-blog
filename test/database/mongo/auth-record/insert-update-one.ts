@@ -1,14 +1,14 @@
-import promisifyMongoDb from '../../../../src/database/mongo';
+import Database from '../../../../src/database/mongo';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 const testInsertUpdate = () =>
     describe('Insert and Update', () => {
         beforeEach(async () => {
-            const { authRecordCollection } = await promisifyMongoDb;
-            await authRecordCollection.clear();
+            const { authRecordCollection } = await Database.instance();
+            await authRecordCollection().clear();
         });
         it('should query, insert, update auth record with defined email', async () => {
-            const { authRecordCollection } = await promisifyMongoDb;
+            const { authRecordCollection } = await Database.instance();
 
             const dataOne = {
                 aud: 'Adonix-os-blog-local',
@@ -29,15 +29,15 @@ const testInsertUpdate = () =>
             } as const;
 
             expect(
-                (await authRecordCollection.insertOne(dataOne)).toHexString()
+                (await authRecordCollection().insertOne(dataOne)).toHexString()
             ).toBeTruthy();
 
             expect(
-                (await authRecordCollection.insertOne(dataTwo)).toHexString()
+                (await authRecordCollection().insertOne(dataTwo)).toHexString()
             ).toBeTruthy();
 
             expect(
-                await authRecordCollection.updateOne(
+                await authRecordCollection().updateOne(
                     {
                         aud: dataTwo.aud,
                         uid: dataTwo.uid,

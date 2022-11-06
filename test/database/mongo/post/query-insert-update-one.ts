@@ -1,4 +1,4 @@
-import promisifyMongoDb from '../../../../src/database/mongo';
+import Database from '../../../../src/database/mongo';
 import { beforeEach, it, describe, expect } from 'vitest';
 
 const testQueryInsertUpdateOne = () =>
@@ -17,13 +17,13 @@ const testQueryInsertUpdateOne = () =>
             imagePath: 'imagePath',
         };
         beforeEach(async () => {
-            const { postCollection } = await promisifyMongoDb;
-            await postCollection.clear();
+            const database = await Database.instance();
+            await database.postCollection().clear();
         });
         it('should insert, update and query an unpublished post', async () => {
-            const { postCollection } = await promisifyMongoDb;
+            const { postCollection } = await Database.instance();
 
-            const id = await postCollection.insertOne(dummy);
+            const id = await postCollection().insertOne(dummy);
             expect(id).toBeTruthy();
 
             const data = {
@@ -33,7 +33,7 @@ const testQueryInsertUpdateOne = () =>
 
             expect(
                 (
-                    await postCollection.updateUnpublishedOne(
+                    await postCollection().updateUnpublishedOne(
                         data,
                         id,
                         new Date()
@@ -41,44 +41,24 @@ const testQueryInsertUpdateOne = () =>
                 ).toHexString()
             ).toBe(id.toHexString());
 
-            expect(await postCollection.showUnpublishedOne(id)).toStrictEqual(
+            expect(await postCollection().showUnpublishedOne(id)).toStrictEqual(
                 data
             );
         });
         it('should insert, update and query an deleted post', async () => {
-            const { postCollection } = await promisifyMongoDb;
-            const id = await postCollection.insertOne(dummy);
+            const { postCollection } = await Database.instance();
+            const id = await postCollection().insertOne(dummy);
 
             const data = {
                 ...dataCommonProps,
                 timeDeleted: new Date(),
             };
 
-            await postCollection.deleteOne(id);
+            await postCollection().deleteOne(id);
 
             expect(
                 (
-                    await postCollection.updateDeletedOne(data, id, new Date())
-                ).toHexString()
-            ).toBe(id.toHexString());
-
-            expect(await postCollection.showDeletedOne(id)).toStrictEqual(data);
-        });
-        it('should insert, update and query an published post', async () => {
-            const { postCollection } = await promisifyMongoDb;
-
-            const id = await postCollection.insertOne(dummy);
-
-            const data = {
-                ...dataCommonProps,
-                timePublished: new Date(),
-            };
-
-            await postCollection.publishOne(id);
-
-            expect(
-                (
-                    await postCollection.updatePublishedOne(
+                    await postCollection().updateDeletedOne(
                         data,
                         id,
                         new Date()
@@ -86,7 +66,33 @@ const testQueryInsertUpdateOne = () =>
                 ).toHexString()
             ).toBe(id.toHexString());
 
-            expect(await postCollection.showPublishedOne(id)).toStrictEqual(
+            expect(await postCollection().showDeletedOne(id)).toStrictEqual(
+                data
+            );
+        });
+        it('should insert, update and query an published post', async () => {
+            const { postCollection } = await Database.instance();
+
+            const id = await postCollection().insertOne(dummy);
+
+            const data = {
+                ...dataCommonProps,
+                timePublished: new Date(),
+            };
+
+            await postCollection().publishOne(id);
+
+            expect(
+                (
+                    await postCollection().updatePublishedOne(
+                        data,
+                        id,
+                        new Date()
+                    )
+                ).toHexString()
+            ).toBe(id.toHexString());
+
+            expect(await postCollection().showPublishedOne(id)).toStrictEqual(
                 data
             );
         });

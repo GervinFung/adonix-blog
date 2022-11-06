@@ -1,52 +1,75 @@
 import { MongoClient } from 'mongodb';
 import mongodbConfig from './config';
-import authRecordCollection from './auth-record';
-import postCollection from './post';
+import AuthRecord from './auth-record';
+import Post from './post';
 
-const promisifyMongoDb = (async () => {
-    const config = mongodbConfig();
-    const client = (() => {
-        const createURL = ({
-            srv,
-            port,
-        }: Readonly<{
-            srv: string | undefined;
-            port: string | undefined;
-        }>) => {
-            if (srv) {
-                return `mongodb${srv}://${user}:${password}@${address}/${dbName}?authSource=admin&retryWrites=true&w=majority`;
+export default class Database {
+    private readonly post: Post;
+    private readonly authRecord: AuthRecord;
+
+    private static readonly create = async () => {
+        const config = mongodbConfig();
+        const client = (() => {
+            const createURL = ({
+                srv,
+                port,
+            }: Readonly<{
+                srv: string | undefined;
+                port: string | undefined;
+            }>) => {
+                if (srv) {
+                    return `mongodb${srv}://${user}:${password}@${address}/${dbName}?authSource=admin&retryWrites=true&w=majority`;
+                }
+                if (port) {
+                    return `mongodb://${user}:${password}@${address}:${port}/${dbName}?authSource=admin&retryWrites=true&w=majority`;
+                }
+                throw new Error('Port or SRV are not defined');
+            };
+
+            const {
+                auth: { user, password },
+                dbName,
+                port,
+                address,
+                srv,
+            } = config;
+            return new MongoClient(createURL({ srv, port }));
+        })();
+
+        await client.connect();
+        return new this(client, config);
+    };
+
+    private static database: Promise<Database> | undefined = undefined;
+
+    static readonly instance = (): Promise<Database> => {
+        const { database } = this;
+        switch (typeof database) {
+            case 'undefined': {
+                this.database = Database.create();
+                return this.database;
             }
-            if (port) {
-                return `mongodb://${user}:${password}@${address}:${port}/${dbName}?authSource=admin&retryWrites=true&w=majority`;
-            }
-            throw new Error('Port or SRV are not defined');
-        };
-        const {
-            auth: { user, password },
-            dbName,
-            port,
-            address,
-            srv,
-        } = config;
-        return new MongoClient(createURL({ srv, port }));
-    })();
+        }
+        return database;
+    };
 
-    await client.connect();
+    private constructor(
+        private readonly client: MongoClient,
+        config: ReturnType<typeof mongodbConfig>
+    ) {
+        const database = this.client.db(config.dbName);
 
-    const {
-        dbName,
-        collections: { post, authRecord },
-    } = config;
+        const { collections } = config;
 
-    const database = client.db(dbName);
+        this.post = new Post(() => database.collection(collections.post));
+        this.authRecord = new AuthRecord(() =>
+            database.collection(collections.authRecordCollection)
+        );
+    }
 
-    return {
-        postCollection: postCollection(() => database.collection(post)),
-        authRecordCollection: authRecordCollection(() =>
-            database.collection(authRecord)
-        ),
-        close: () => client.close(),
-    } as const;
-})();
+    readonly postCollection = () => this.post;
 
-export default promisifyMongoDb;
+    readonly authRecordCollection = () => this.authRecord;
+
+    readonly close = () => this.client.close();
+}

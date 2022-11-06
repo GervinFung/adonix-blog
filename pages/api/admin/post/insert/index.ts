@@ -1,7 +1,7 @@
 import cors, { EndPointFunc } from '../../../../../src/util/api/route/cors';
 import auth from '../../../../../src/auth/api';
 import adminPropsParser from '../../../../../src/parser/admin';
-import promisifyMongoDb from '../../../../../src/database/mongo';
+import Database from '../../../../../src/database/mongo';
 import blogPropsParser from '../../../../../src/parser/blog';
 import { isAllTextValid } from '../../../../../src/common/validation';
 
@@ -23,8 +23,8 @@ const insert: EndPointFunc<Response> = async (req, res) => {
         });
     }
 
-    const mongo = await promisifyMongoDb;
-    const insertedId = await mongo.postCollection.insertOne({
+    const database = await Database.instance();
+    const insertedId = await database.postCollection().insertOne({
         ...post,
         timeCreated: new Date(),
     });

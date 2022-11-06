@@ -24,7 +24,7 @@ const mongodbConfig = () => {
                 env: process.env.MONGO_COLLECTION_POST,
                 name: 'MONGO_COLLECTION_POST',
             }),
-            authRecord: parseAsStringEnv({
+            authRecordCollection: parseAsStringEnv({
                 env: process.env.MONGO_COLLECTION_AUTH_RECORD,
                 name: 'MONGO_COLLECTION_AUTH_RECORD',
             }),

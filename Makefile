@@ -17,11 +17,28 @@ install:
 ## dev
 next=$(NODE_BIN)next
 
-clear-cache:
+clear-cache: 
 	rm -rf .next
 
-dev: clear-cache
+dev: clear-cache development
 	$(next) dev
+
+## env
+development:
+	cp .env.development .env
+
+staging:
+	cp .env.staging .env
+
+production:
+	cp .env.production .env
+
+## deployment
+vercel-staging: staging
+	vercel
+
+vercel-production: production
+	vercel --prod
 
 ## build
 build: clear-cache

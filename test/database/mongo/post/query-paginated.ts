@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import promisifyMongoDb from '../../../../src/database/mongo';
+import Database from '../../../../src/database/mongo';
 import { beforeAll, it, describe, expect } from 'vitest';
 
 const testQueryPaginated = () =>
@@ -35,9 +35,9 @@ const testQueryPaginated = () =>
             };
         });
         beforeAll(async () => {
-            const { postCollection } = await promisifyMongoDb;
-            await postCollection.clear();
-            await postCollection.bulkInsert(dummyData);
+            const { postCollection } = await Database.instance();
+            await postCollection().clear();
+            await postCollection().bulkInsert(dummyData);
         });
         it('should query paginated posts', async () => {
             const paginatePublishedDummyData = ({
@@ -75,14 +75,14 @@ const testQueryPaginated = () =>
                             a.timePublished.getTime()
                     );
 
-            const { postCollection } = await promisifyMongoDb;
+            const { postCollection } = await Database.instance();
 
             // published posts
             expect(
-                (await postCollection.showManyPublished({ skip: 2 })).length
+                (await postCollection().showManyPublished({ skip: 2 })).length
             ).toBe(0);
             expect(
-                await postCollection.showManyPublished({ skip: 0 })
+                await postCollection().showManyPublished({ skip: 0 })
             ).toStrictEqual(
                 paginatePublishedDummyData({
                     start: 9,
@@ -90,7 +90,7 @@ const testQueryPaginated = () =>
                 })
             );
             expect(
-                await postCollection.showManyPublished({ skip: 1 })
+                await postCollection().showManyPublished({ skip: 1 })
             ).toStrictEqual(
                 paginatePublishedDummyData({
                     start: 0,
@@ -100,10 +100,10 @@ const testQueryPaginated = () =>
 
             // unpublished posts
             expect(
-                (await postCollection.showManyUnpublished({ skip: 1 })).length
+                (await postCollection().showManyUnpublished({ skip: 1 })).length
             ).toBe(0);
             expect(
-                await postCollection.showManyUnpublished({
+                await postCollection().showManyUnpublished({
                     skip: 0,
                 })
             ).toStrictEqual(
@@ -132,11 +132,11 @@ const testQueryPaginated = () =>
 
             // deleted posts
             expect(
-                (await postCollection.showManyDeleted({ skip: 1 })).length
+                (await postCollection().showManyDeleted({ skip: 1 })).length
             ).toBe(0);
 
             expect(
-                await postCollection.showManyDeleted({
+                await postCollection().showManyDeleted({
                     skip: 0,
                 })
             ).toStrictEqual(
@@ -162,31 +162,33 @@ const testQueryPaginated = () =>
             );
         });
         it('should return total number of deleted posts', async () => {
-            const { postCollection } = await promisifyMongoDb;
-            expect(await postCollection.totalDeletedPosts()).toBe(
+            const database = await Database.instance();
+            expect(await database.postCollection().totalDeletedPosts()).toBe(
                 dummyData.filter((data) => data.timeDeleted).length
             );
         });
         it('should return total number of unpublished posts', async () => {
-            const { postCollection } = await promisifyMongoDb;
-            expect(await postCollection.totalUnpublishedPosts()).toBe(
+            const database = await Database.instance();
+            expect(
+                await database.postCollection().totalUnpublishedPosts()
+            ).toBe(
                 dummyData.filter(
                     (data) => !data.timePublished && !data.timeDeleted
                 ).length
             );
         });
         it('should return total number of published posts', async () => {
-            const { postCollection } = await promisifyMongoDb;
-            expect(await postCollection.totalPublishedPosts()).toBe(
+            const database = await Database.instance();
+            expect(await database.postCollection().totalPublishedPosts()).toBe(
                 dummyData.filter((data) => data.timePublished).length
             );
         });
         it('should return true for published + unpublished + deleted post equal to total posts', async () => {
-            const { postCollection } = await promisifyMongoDb;
+            const { postCollection } = await Database.instance();
             expect(
-                (await postCollection.totalPublishedPosts()) +
-                    (await postCollection.totalUnpublishedPosts()) +
-                    (await postCollection.totalDeletedPosts())
+                (await postCollection().totalPublishedPosts()) +
+                    (await postCollection().totalUnpublishedPosts()) +
+                    (await postCollection().totalDeletedPosts())
             ).toBe(dummyData.length);
         });
     });
