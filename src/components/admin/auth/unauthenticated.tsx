@@ -25,25 +25,18 @@ const Unauthenticated = () => {
                 sx={{
                     mt: 3,
                     mb: 3,
+                    display: 'grid',
+                    placeItems: 'center',
+                    gridGap: 100,
                 }}
             >
-                <Typography
-                    variant="h4"
-                    component="h4"
-                    sx={{
-                        mb: 1,
-                    }}
-                >
-                    Please authenticate yourself
+                <Typography variant="h1" component="h1">
+                    WARNING
+                </Typography>
+                <Typography variant="h5" component="h5">
+                    You are not authorized to view this page
                 </Typography>
             </Container>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => router.replace('/admin')}
-            >
-                Sign In
-            </Button>
         </Container>
     );
 };
