@@ -70,13 +70,13 @@ start-staging: staging clear-cache start
 start-production: production clear-cache start
 
 ## build
-build-development: clear-cache check-projects-image-asset development build
+build-development: clear-cache development build
 
-build-production: clear-cache check-projects-image-asset production build
+build-production: clear-cache production build
 
-build-staging: clear-cache check-projects-image-asset staging build
+build-staging: clear-cache staging build
 
-build-testing: clear-cache check-projects-image-asset testing build
+build-testing: clear-cache testing build
 
 build:
 	$(NEXT) build && make generate-sitemap && make generate-webmanifest
