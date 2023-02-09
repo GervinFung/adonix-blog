@@ -1,4 +1,4 @@
-import { parseAsStringEnv } from 'esbuild-env-parsing';
+import { parseAsStringEnv } from '../../util/env';
 
 const config = {
     type: parseAsStringEnv({

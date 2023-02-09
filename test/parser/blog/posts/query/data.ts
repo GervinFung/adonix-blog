@@ -1,7 +1,8 @@
-import { DateTime } from '../../post/query';
 import { expect, it } from 'vitest';
 
 type TestCasesCallBack<Posts> = (post: unknown) => Posts;
+
+type DateTime = 'timeCreated' | 'timeDeleted' | 'timePublished';
 
 type TestCases<Posts> = Readonly<{
     parseAsValidPosts: (parse: TestCasesCallBack<Posts>) => void;

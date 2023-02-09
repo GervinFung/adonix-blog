@@ -38,8 +38,6 @@
         "@typescript-eslint/eslint-plugin": "^5.42.0",
         "@typescript-eslint/parser": "^5.42.0",
         "ci-info": "^3.7.1",
-        "dotenv": "^16.0.3",
-        "esbuild-env-parsing": "^1.0.3",
         "eslint": "^8.27.0",
         "eslint-plugin-react": "^7.31.10",
         "prettier": "^2.7.1",

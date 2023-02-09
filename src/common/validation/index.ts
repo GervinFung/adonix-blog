@@ -1,5 +1,8 @@
-import { isBlank, isEmpty } from 'granula-string';
 import { PostCommonProps } from '../type/post';
+
+const isBlank = (s: string) =>
+    s.split('').filter((c) => ' ' === c).length === s.length;
+const isEmpty = (s: string) => s === '';
 
 const isInputNotEmptyOrBlank = (input: string) =>
     !(isBlank(input) || isEmpty(input));

@@ -15,8 +15,6 @@ specifiers:
   axios: ^0.27.2
   ci-info: ^3.7.1
   cors: ^2.8.5
-  dotenv: ^16.0.3
-  esbuild-env-parsing: ^1.0.3
   eslint: ^8.27.0
   eslint-plugin-react: ^7.31.10
   firebase: ^9.13.0
@@ -70,8 +68,6 @@ devDependencies:
   '@typescript-eslint/eslint-plugin': 5.42.0_ofgjrzjuekeo7s3hdyz2yuzw34
   '@typescript-eslint/parser': 5.42.0_rmayb2veg2btbq6mbmnyivgasy
   ci-info: 3.7.1
-  dotenv: 16.0.3
-  esbuild-env-parsing: 1.0.3
   eslint: 8.27.0
   eslint-plugin-react: 7.31.10_eslint@8.27.0
   prettier: 2.7.1
@@ -2897,11 +2893,6 @@ packages:
     dev: false
     optional: true
 
-  /dotenv/16.0.3:
-    resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
-    engines: {node: '>=12'}
-    dev: true
-
   /duplexify/4.1.2:
     resolution: {integrity: sha512-fz3OjcNCHmRP12MJoZMPglx8m4rrFP8rovnk4vT8Fs+aonZoCwGg10dSsQsfP/E62eZcPTMSMP6686fu9Qlqtw==}
     dependencies:
@@ -3019,10 +3010,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /esbuild-env-parsing/1.0.3:
-    resolution: {integrity: sha512-TXI1S9kfXfWJRe2+cADV2VE/e0jT68H/CuEaAgapTnm8J1dn1hGywjeywkWS8ZmvPwDR2oL0VaFpdu3eSIWmxg==}
-    dev: true
 
   /esbuild-freebsd-64/0.15.13:
     resolution: {integrity: sha512-whItJgDiOXaDG/idy75qqevIpZjnReZkMGCgQaBWZuKHoElDJC1rh7MpoUgupMcdfOd+PgdEwNQW9DAE6i8wyA==}

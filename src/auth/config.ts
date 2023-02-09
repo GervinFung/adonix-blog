@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { parseAsStringEnv } from 'esbuild-env-parsing';
+import { parseAsStringEnv } from '../util/env';
 
 const app = initializeApp({
     apiKey: parseAsStringEnv({

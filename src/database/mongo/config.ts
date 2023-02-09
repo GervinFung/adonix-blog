@@ -1,14 +1,7 @@
-import dotenv from 'dotenv';
-import { parseAsStringEnv } from 'esbuild-env-parsing';
+import { parseAsStringEnv } from '../../util/env';
 
-const mongodbConfig = () => {
-    dotenv.config({
-        path: `${process.cwd()}/.env${
-            process.env.NODE_ENV === 'test' ? '.test' : ''
-        }`,
-    });
-
-    return {
+const mongodbConfig = () =>
+    ({
         port: process.env.MONGO_PORT,
         srv: process.env.MONGO_SRV,
         dbName: parseAsStringEnv({
@@ -39,7 +32,6 @@ const mongodbConfig = () => {
                 name: 'MONGO_PASSWORD',
             }),
         },
-    } as const;
-};
+    } as const);
 
 export default mongodbConfig;

@@ -5,7 +5,8 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Container from '@mui/material/Container';
-import { capitalize } from 'granula-string';
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const Option = <A, T extends string>({
     value,
