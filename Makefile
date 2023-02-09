@@ -6,56 +6,88 @@ all:
 		make typecheck &&\
 		make format-check &&\
 		make test &&\
-		make build
 
 NODE_BIN=node_modules/.bin/
+VITE_NODE=$(NODE_BIN)vite-node
+NEXT=$(NODE_BIN)next
+TSC=$(NODE_BIN)tsc
+VITEST=$(NODE_BIN)vitest
 
 ## install
 install:
-	pnpm i --frozen-lockfile	
+	pnpm i --frozen-lockfile
 
-## dev
-next=$(NODE_BIN)next
+install-mongo:
+	$(VITE_NODE) script/mongo-setup/install.ts
 
-clear-cache: 
-	rm -rf .next
+setup-mongo:
+	sudo systemctl unmask mongod
+	sudo systemctl start mongod
+	sudo systemctl stop mongod
+	sudo systemctl restart mongod
+	mongosh < script/mongo-setup/document.js
 
-dev: clear-cache development
-	$(next) dev
+## generate
+generate: generate-webmanifest generate-sitemap
+
+generate-webmanifest:
+	$(VITE_NODE) script/site/webmanifest.ts
+
+generate-sitemap:
+	$(NODE_BIN)next-sitemap
 
 ## env
+copy-env:
+	$(VITE_NODE) script/env/copy.ts ${arguments}
+
 development:
-	cp .env.development .env
+	make copy-env arguments="-- --development"
 
 staging:
-	cp .env.staging .env
+	make copy-env arguments="-- --staging"
 
 production:
-	cp .env.production .env
+	make copy-env arguments="-- --productions"
+
+testing:
+	make copy-env arguments="-- --testing"
 
 ## deployment
-vercel-staging: staging
+deploy-staging: build-staging
 	vercel
 
-vercel-production: production
+deploy-production: build-production
 	vercel --prod
 
-## build
-build: clear-cache
-	$(next) build
+clear-cache:
+	rm -rf .next
 
-## clean-up:
-clean-up:
-	rm -rf src test script .github .git post pages docs
+start-development: development clear-cache
+	$(NEXT) dev
+
+start-staging: staging clear-cache start
+
+start-production: production clear-cache start
+
+## build
+build-development: clear-cache development build
+
+build-production: clear-cache production build
+
+build-staging: clear-cache staging build
+
+build-testing: clear-cache testing build
+
+build:
+	$(NEXT) build && make generate-sitemap && make generate-webmanifest
 
 ## start
 start:
-	$(next) start
+	$(NEXT) start $(arguments)
 
 ## format
-prettier=$(NODE_BIN)prettier
 prettify:
-	$(prettier) --$(type) src/ test/
+	$(NODE_BIN)prettier --ignore-path .gitignore  --$(type) src/ test/
 
 format-check:
 	make prettify type=check
@@ -65,34 +97,30 @@ format:
 
 ## lint
 lint:
-	$(NODE_BIN)eslint src/ test/ -f='stylish' --color
+	$(NODE_BIN)eslint src/ test/ -f='stylish' --color &&\
+		make find-unused-exports &&\
+		make find-unimported-files
+
+## find unused exports
+find-unused-exports:
+	$(NODE_BIN)find-unused-exports
+
+## find unimported files
+find-unimported-files:
+	$(NODE_BIN)unimported
 
 ## typecheck
-tsc=$(NODE_BIN)tsc
-
 typecheck:
-	$(tsc) -p tsconfig.json $(arguments) 
+	$(TSC) -p tsconfig.json $(arguments) 
 
 typecheck-watch:
 	make typecheck arguments=--w
 
 ## test
-vitest=$(NODE_BIN)vitest
-
 test-unit:
-	$(vitest) --mode unit
+	$(VITEST) --mode unit
 
 test-integration:
-	$(vitest) --mode intergation
+	$(VITEST) --mode intergation
 
 test: test-unit test-integration
-
-install-mongo:
-	$(NODE_BIN)vite-node script/mongo-setup/install.ts
-
-setup-mongo:
-	sudo systemctl unmask mongod
-	sudo systemctl start mongod
-	sudo systemctl stop mongod
-	sudo systemctl restart mongod
-	mongosh < script/mongo-setup/document.js

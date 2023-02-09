@@ -15,7 +15,10 @@ const login: EndPointFunc<Response> = async (req, res) => {
 
     const database = await Database.instance();
 
-    const verifiedId = await auth.verifyIdToken(token);
+    const verifiedId = await auth().verifyIdToken(token);
+    console.log({
+        verifiedId,
+    });
     const { email, aud, uid, auth_time: authTime } = verifiedId;
     const data = {
         authTime,

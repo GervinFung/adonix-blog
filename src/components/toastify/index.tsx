@@ -1,27 +1,19 @@
 import { toast, ToastPromiseParams } from 'react-toastify';
+import { processErrorMessage } from '../../util/error';
 
 const position = toast.POSITION.TOP_CENTER;
 
-const toastError = (error: any) =>
-    toast.error(error, {
-        autoClose: false,
+const ToastError = (
+    error: any,
+    option?: Readonly<{
+        autoClose?: number;
+    }>
+) =>
+    toast.error(processErrorMessage(error), {
+        autoClose: option?.autoClose ?? false,
         closeButton: true,
         position,
     });
-
-const ToastError = (error: any, stringCallBack?: (s: string) => string) => {
-    const errorMessage = (message: string) =>
-        !stringCallBack
-            ? toastError(message)
-            : toastError(stringCallBack(message));
-    if (error instanceof Error) {
-        return errorMessage(error.message);
-    }
-    if (typeof error === 'string') {
-        return errorMessage(error);
-    }
-    return errorMessage(JSON.stringify(error));
-};
 
 const ToastInfo = (info: any) =>
     toast.info(info, {
@@ -32,23 +24,23 @@ const ToastInfo = (info: any) =>
 const ToastPromise = <T extends Object>({
     promise,
     pending,
-    success,
-    error,
 }: Readonly<{
     pending: ToastPromiseParams['pending'];
-    success: ToastPromiseParams['success'];
-    error: ToastPromiseParams['error'];
     promise: Promise<T>;
 }>) =>
     toast.promise(
         promise,
         {
             pending,
-            success,
-            error,
+            success: {
+                render: ({ data }) => data as any,
+            },
+            error: {
+                render: ({ data }) => data as any,
+            },
         },
         {
-            autoClose: 250,
+            autoClose: 1000,
         }
     );
 

@@ -3,10 +3,11 @@ import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { adonixAdmin } from '../../../auth';
-import { ToastError } from '../../toastify';
+import AdonixAuthAdmin from '../../../auth/web';
+import { ToastPromise } from '../../toastify';
 import { Input } from '../common';
 import { blue } from '@mui/material/colors';
+import { processErrorMessage } from '../../../util/error';
 
 const SignIn = () => {
     const [state, setState] = React.useState({
@@ -104,28 +105,43 @@ const SignIn = () => {
                         background: blue[500],
                         color: 'white',
                     }}
-                    onClick={async () => {
-                        const result = await adonixAdmin.signIn({
-                            email,
-                            password,
-                        });
-                        switch (result.type) {
-                            case 'succeed':
-                                return;
-                            case 'failed': {
-                                const { error } = result;
-                                if (!(error instanceof Error)) {
-                                    return ToastError(error);
-                                }
-                                const { message } = error;
-                                return ToastError(message, (message) =>
-                                    message.includes('password') ||
-                                    message.includes('email')
-                                        ? 'Invalid credential'
-                                        : message
-                                );
+                    onClick={() => {
+                        const promise = new Promise<string>(
+                            (resolve, reject) => {
+                                AdonixAuthAdmin.instance()
+                                    .signIn({
+                                        email,
+                                        password,
+                                    })
+                                    .then((result) => {
+                                        switch (result.type) {
+                                            case 'succeed':
+                                                return resolve('Validated');
+                                            case 'failed': {
+                                                const message =
+                                                    processErrorMessage(
+                                                        result.error
+                                                    );
+                                                throw new Error(
+                                                    message.includes(
+                                                        'password'
+                                                    ) ||
+                                                    message.includes('email')
+                                                        ? 'Invalid credential'
+                                                        : message
+                                                );
+                                            }
+                                        }
+                                    })
+                                    .catch((error) =>
+                                        reject(processErrorMessage(error))
+                                    );
                             }
-                        }
+                        );
+                        ToastPromise({
+                            promise,
+                            pending: 'Validating...',
+                        });
                     }}
                 >
                     Sign In

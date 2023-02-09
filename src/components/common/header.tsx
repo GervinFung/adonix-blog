@@ -14,10 +14,11 @@ import Button from '@mui/material/Button';
 import { useRouter } from 'next/router';
 import { SxProps, Theme } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
-import { ToastError, ToastInfo } from '../toastify';
 import nullableToUndefinedPropsParser from '../../parser/type';
 import { AdonixBlogContext } from '../../../pages/_app';
-import { adonixAdmin } from '../../auth';
+import AdonixAuthAdmin from '../../auth/web';
+import { processErrorMessage } from '../../util/error';
+import { ToastPromise } from '../toastify';
 
 const Header = () => {
     const title = 'ADONIX';
@@ -28,7 +29,7 @@ const Header = () => {
     const defaultLinks = [
         {
             name: 'About',
-            link: 'https://poolofdeath20.vercel.app/about',
+            link: 'https://gervinfungdaxuen.vercel.app',
         },
         {
             name: 'GitHub',
@@ -250,22 +251,48 @@ const Header = () => {
                                     <MenuItem onClick={handleCloseUserMenu}>
                                         <Typography
                                             textAlign="center"
-                                            onClick={async () => {
-                                                const result =
-                                                    await adonixAdmin.signOut(
-                                                        admin
+                                            onClick={() => {
+                                                const promise =
+                                                    new Promise<string>(
+                                                        (resolve, reject) => {
+                                                            AdonixAuthAdmin.instance()
+                                                                .signOut(admin)
+                                                                .then(
+                                                                    (
+                                                                        result
+                                                                    ) => {
+                                                                        switch (
+                                                                            result.type
+                                                                        ) {
+                                                                            case 'succeed':
+                                                                                return resolve(
+                                                                                    'Signed Out'
+                                                                                );
+                                                                            case 'failed': {
+                                                                                throw new Error(
+                                                                                    processErrorMessage(
+                                                                                        result.error
+                                                                                    )
+                                                                                );
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                )
+                                                                .catch(
+                                                                    (error) =>
+                                                                        reject(
+                                                                            processErrorMessage(
+                                                                                error
+                                                                            )
+                                                                        )
+                                                                );
+                                                        }
                                                     );
-                                                switch (result.type) {
-                                                    case 'succeed':
-                                                        return ToastInfo(
-                                                            'Signed Out'
-                                                        );
-                                                    case 'failed': {
-                                                        return ToastError(
-                                                            result.error
-                                                        );
-                                                    }
-                                                }
+
+                                                ToastPromise({
+                                                    promise,
+                                                    pending: 'Signing Out...',
+                                                });
                                             }}
                                         >
                                             Sign Out

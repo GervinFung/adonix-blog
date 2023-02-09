@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { useRouter } from 'next/router';
-import { parseAsString } from 'parse-dont-validate';
 import adonixAxios from '../../../axios';
 import {
     AdminHandlePost,
@@ -24,7 +23,9 @@ import { equal } from '../../../util/deep-equal';
 import Typography from '@mui/material/Typography';
 import Preview from '../../blog/post/preview';
 import PostUnavailable from '../../blog/post/unavailable';
-import { NonNullableAdonixAdmin } from '../../../auth';
+import { NonNullableAdonixAdmin } from '../../../auth/web';
+import { processErrorMessage } from '../../../util/error';
+import { parseAsString } from 'parse-dont-validate';
 
 type NameOfMutableData = keyof UpdatePostCommonProps;
 
@@ -63,7 +64,7 @@ const Post = ({
         if (!queryOption || !id) {
             return;
         }
-        const promise = new Promise<string>((res, rej) =>
+        const promise = new Promise<string>((resolve, reject) => {
             admin
                 .getIdToken(true)
                 .then((token) =>
@@ -114,28 +115,21 @@ const Post = ({
                                     isLoaded: true,
                                 };
                             });
-                            res('Completed');
+                            return resolve('Completed');
                         })
                         .catch((error) => {
                             setState((prev) => ({
                                 ...prev,
                                 isLoaded: true,
                             }));
-                            rej(error);
+                            throw new Error(processErrorMessage(error));
                         })
                 )
-                .catch(rej)
-        );
+                .catch((error) => reject(processErrorMessage(error)));
+        });
         ToastPromise({
             promise,
             pending: 'Querying post...',
-            success: {
-                render: ({ data }) =>
-                    parseAsString(data).orElseThrowDefault('data'),
-            },
-            error: {
-                render: ({ data }) => ToastError(data),
-            },
         });
     }, [id, queryOption]);
 
@@ -265,6 +259,7 @@ const Post = ({
             </Box>
             <TabPanel value={value} index={1}>
                 <Preview
+                    isLoaded={isLoaded}
                     post={{
                         ...post,
                         timePublished: new Date(),
@@ -423,39 +418,42 @@ const Post = ({
                             ToastError('Invalid input');
                             return;
                         }
-                        const promise = new Promise<string>((res, rej) =>
-                            admin
-                                .getIdToken(true)
-                                .then((token) =>
-                                    adonixAxios
-                                        .post(
-                                            `${api.admin.post.update}/${id}`,
-                                            {
-                                                data: {
-                                                    post: updated.post,
-                                                    id,
-                                                    queryOption: type,
-                                                    status,
-                                                    token,
-                                                },
-                                            }
-                                        )
-                                        .then(({ data }) => res(data.message))
-                                )
-                                .catch(rej)
+                        const promise = new Promise<string>(
+                            (resolve, reject) => {
+                                admin
+                                    .getIdToken(true)
+                                    .then((token) =>
+                                        adonixAxios
+                                            .post(
+                                                `${api.admin.post.update}/${id}`,
+                                                {
+                                                    data: {
+                                                        post: updated.post,
+                                                        id,
+                                                        queryOption: type,
+                                                        status,
+                                                        token,
+                                                    },
+                                                }
+                                            )
+                                            .then(({ data }) =>
+                                                resolve(
+                                                    parseAsString(
+                                                        data.message
+                                                    ).orElseThrowDefault(
+                                                        'data.message'
+                                                    )
+                                                )
+                                            )
+                                    )
+                                    .catch((error) =>
+                                        reject(processErrorMessage(error))
+                                    );
+                            }
                         );
                         ToastPromise({
                             promise,
                             pending: 'Updating post...',
-                            success: {
-                                render: ({ data }) =>
-                                    parseAsString(data).orElseThrowDefault(
-                                        'data'
-                                    ),
-                            },
-                            error: {
-                                render: ({ data }) => ToastError(data),
-                            },
                         });
                         if (!status) {
                             return;

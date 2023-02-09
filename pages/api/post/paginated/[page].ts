@@ -30,7 +30,7 @@ const paginated: EndPointFunc<Response> = async (req, res) => {
         });
     }
 
-    await authApi.verifyIdToken(token);
+    await authApi().verifyIdToken(token);
 
     const type = posts.parseAsPostQueryOption(query.queryOption);
 

@@ -1,14 +1,14 @@
 import React from 'react';
-import { parseAsString } from 'parse-dont-validate';
 import { useRouter } from 'next/router';
 import { PublishedPosts } from '../../../common/type/post';
 import adonixAxios from '../../../axios';
 import { api } from '../../../util/const';
 import blogPropsParser from '../../../parser/blog';
-import { ToastError, ToastPromise } from '../../toastify';
+import { ToastPromise } from '../../toastify';
 import Preview from './preview';
 import usePage from '../../../hook/page';
 import PostsUnavailable from './unavailable';
+import { processErrorMessage } from '../../../util/error';
 
 const Posts = () => {
     const router = useRouter();
@@ -24,7 +24,7 @@ const Posts = () => {
     const { page } = usePage();
 
     React.useEffect(() => {
-        const promise = new Promise<string>((res, rej) =>
+        const promise = new Promise<string>((resolve, reject) => {
             adonixAxios
                 .get(`${api.post.paginated}/${page}`)
                 .then(({ data }) => {
@@ -39,26 +39,19 @@ const Posts = () => {
                             ),
                         };
                     });
-                    res('Completed');
+                    return resolve('Completed');
                 })
                 .catch((error) => {
                     setState((prev) => ({
                         ...prev,
                         isLoaded: true,
                     }));
-                    rej(error);
-                })
-        );
+                    reject(processErrorMessage(error));
+                });
+        });
         ToastPromise({
             promise,
             pending: 'Querying posts...',
-            success: {
-                render: ({ data }) =>
-                    parseAsString(data).orElseThrowDefault('data'),
-            },
-            error: {
-                render: ({ data }) => ToastError(data),
-            },
         });
     }, [page]);
 
@@ -76,7 +69,7 @@ const Posts = () => {
         />
     );
 
-    return !isLoaded ? null : !posts.length ? (
+    return isLoaded && !posts.length ? (
         <>
             <Background />
             <PostsUnavailable type="published" />
@@ -85,6 +78,7 @@ const Posts = () => {
         <>
             <Background />
             <Preview
+                isLoaded={isLoaded}
                 type="user"
                 posts={posts.map(({ timePublished, ...props }) => ({
                     ...props,

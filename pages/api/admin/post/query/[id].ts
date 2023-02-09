@@ -15,7 +15,7 @@ const query: EndPointFunc<Response> = async (req, res) => {
 
     const { auth: authParser, posts } = adminPropsParser();
 
-    await auth.verifyIdToken(authParser.parseAsToken(query.token));
+    await auth().verifyIdToken(authParser.parseAsToken(query.token));
 
     const type = posts.parseAsPostQueryOption(query.queryOption);
 

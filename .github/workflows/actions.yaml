@@ -59,4 +59,4 @@ jobs:
                   NEXT_PUBLIC_FIREBASE_APP_ID: id
                   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: id
                   NEXT_PUBLIC_GA_MEASUREMENT_ID: G
-              run: make build
+              run: make build-production

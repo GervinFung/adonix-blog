@@ -1,0 +1,7 @@
+{
+    "entry": ["pages/api/**/*.ts", "pages/**/*.tsx"],
+    "ignoreUnresolved": [],
+    "ignorePatterns": [],
+    "ignoreUnused": [],
+    "ignoreUnimported": []
+}

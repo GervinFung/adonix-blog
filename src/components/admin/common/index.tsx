@@ -1,5 +1,6 @@
 import React from 'react';
 import FormControl from '@mui/material/FormControl';
+import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -21,32 +22,39 @@ const Option = <A, T extends string>({
     options: ReadonlyArray<T>;
     onOptionSelected: (t: T) => A;
 }>) => (
-    <FormControl
-        fullWidth
+    <Paper
+        elevation={0}
         sx={{
-            mt: 2,
-            boxSizing: 'border-box',
+            display: 'grid',
+            placeItems: 'center',
         }}
     >
-        <InputLabel id="query-option-label">{label}</InputLabel>
-        <Select
-            labelId="query-option-label"
-            id="query-option"
-            label={label}
-            value={value}
-            onChange={(event) => onOptionSelected(event.target.value as T)}
+        <FormControl
+            sx={{
+                mt: 2,
+                boxSizing: 'border-box',
+            }}
         >
-            {options.map((option) => (
-                <MenuItem
-                    key={option}
-                    value={option}
-                    disabled={isUseDisabled && option === value}
-                >
-                    {capitalize(option)}
-                </MenuItem>
-            ))}
-        </Select>
-    </FormControl>
+            <InputLabel id="query-option-label">{label}</InputLabel>
+            <Select
+                labelId="query-option-label"
+                id="query-option"
+                label={label}
+                value={value}
+                onChange={(event) => onOptionSelected(event.target.value as T)}
+            >
+                {options.map((option) => (
+                    <MenuItem
+                        key={option}
+                        value={option}
+                        disabled={isUseDisabled && option === value}
+                    >
+                        {capitalize(option)}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    </Paper>
 );
 
 const Input = ({

@@ -2,12 +2,12 @@ import React from 'react';
 import adonixAxios from '../../../axios';
 import { api } from '../../../util/const';
 import blogPropsParser from '../../../parser/blog';
-import { ToastError, ToastPromise } from '../../toastify';
-import { parseAsString } from 'parse-dont-validate';
+import { ToastPromise } from '../../toastify';
 import { UserReadPublishedPost } from '../../../common/type/post';
 import { useRouter } from 'next/router';
 import Preview from './preview';
 import PostUnavailable from './unavailable';
+import { processErrorMessage } from '../../../util/error';
 
 const Post = () => {
     const router = useRouter();
@@ -26,7 +26,7 @@ const Post = () => {
         if (!id) {
             return;
         }
-        const promise = new Promise<string>((res, rej) =>
+        const promise = new Promise<string>((resolve, reject) => {
             adonixAxios
                 .get(`${api.post.one}/${id}`)
                 .then(({ data }) => {
@@ -37,33 +37,26 @@ const Post = () => {
                             data.post
                         ),
                     }));
-                    res('Completed');
+                    resolve('Completed');
                 })
                 .catch((error) => {
                     setState((prev) => ({
                         ...prev,
                         isLoaded: true,
                     }));
-                    rej(error);
-                })
-        );
+                    reject(processErrorMessage(error));
+                });
+        });
         ToastPromise({
             promise,
             pending: 'Querying post...',
-            success: {
-                render: ({ data }) =>
-                    parseAsString(data).orElseThrowDefault('data'),
-            },
-            error: {
-                render: ({ data }) => ToastError(data),
-            },
         });
     }, [id]);
 
-    return !isLoaded ? null : !post ? (
+    return !post ? (
         <PostUnavailable type="published" />
     ) : (
-        <Preview post={post} />
+        <Preview post={post} isLoaded={isLoaded} />
     );
 };
 

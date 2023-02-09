@@ -4,10 +4,13 @@ import Container from '@mui/material/Container';
 import minutesToRead from 'minutes-to-read';
 import StringToMarkdown from './parser';
 import { NonNullablePublishedPost } from '../../../common/type/post';
+import Skeleton from '@mui/material/Skeleton';
 
 const Preview = ({
+    isLoaded,
     post: { title, description, timePublished, content, imagePath },
 }: Readonly<{
+    isLoaded: boolean;
     post: NonNullablePublishedPost;
 }>) => (
     <Container
@@ -18,13 +21,24 @@ const Preview = ({
             width: '85%',
         }}
     >
-        <img
-            src={imagePath}
-            style={{
-                width: '100%',
-                margin: '0 0 16px 0',
-            }}
-        />
+        {!isLoaded ? (
+            <Skeleton
+                variant="rectangular"
+                width="100%"
+                height="400px"
+                style={{
+                    margin: '0 0 16px 0',
+                }}
+            />
+        ) : (
+            <img
+                src={imagePath}
+                style={{
+                    width: '100%',
+                    margin: '0 0 16px 0',
+                }}
+            />
+        )}
         <Typography
             variant="h3"
             component="h3"
@@ -32,7 +46,11 @@ const Preview = ({
                 mb: 2,
             }}
         >
-            {title}
+            {isLoaded ? (
+                title
+            ) : (
+                <Skeleton width="700px" variant="rectangular" />
+            )}
         </Typography>
         <Typography
             variant="h6"
@@ -42,7 +60,11 @@ const Preview = ({
                 mb: 2,
             }}
         >
-            {timePublished.toDateString()}
+            {isLoaded ? (
+                timePublished.toDateString()
+            ) : (
+                <Skeleton width="200px" variant="rectangular" />
+            )}
         </Typography>
         <Typography
             variant="h5"
@@ -51,7 +73,11 @@ const Preview = ({
                 mb: 2,
             }}
         >
-            {description}
+            {isLoaded ? (
+                description
+            ) : (
+                <Skeleton width="800px" variant="rectangular" />
+            )}
         </Typography>
         <Typography
             variant="h6"
@@ -61,7 +87,11 @@ const Preview = ({
                 mb: 1,
             }}
         >
-            {minutesToRead(content)}
+            {isLoaded ? (
+                minutesToRead(content)
+            ) : (
+                <Skeleton width="200px" variant="rectangular" />
+            )}
         </Typography>
         <Typography
             variant="subtitle1"
@@ -74,7 +104,11 @@ const Preview = ({
                 },
             }}
         >
-            <StringToMarkdown content={content} />
+            {!isLoaded ? (
+                <Skeleton height="500vh" variant="rectangular" />
+            ) : (
+                <StringToMarkdown content={content} />
+            )}
         </Typography>
     </Container>
 );
