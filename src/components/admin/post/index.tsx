@@ -25,7 +25,6 @@ import Preview from '../../blog/post/preview';
 import PostUnavailable from '../../blog/post/unavailable';
 import { NonNullableAdonixAdmin } from '../../../auth/web';
 import { processErrorMessage } from '../../../util/error';
-import Skeleton from '@mui/material/Skeleton';
 import { parseAsString } from 'parse-dont-validate';
 
 type NameOfMutableData = keyof UpdatePostCommonProps;
@@ -135,7 +134,7 @@ const Post = ({
     }, [id, queryOption]);
 
     if (!updated || !isLoaded) {
-        return <Skeleton />;
+        return null;
     }
 
     const { type, post } = updated;
@@ -260,6 +259,7 @@ const Post = ({
             </Box>
             <TabPanel value={value} index={1}>
                 <Preview
+                    isLoaded={isLoaded}
                     post={{
                         ...post,
                         timePublished: new Date(),
