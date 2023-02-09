@@ -13,7 +13,9 @@ const insert: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { body } = req;
 
-    await auth.verifyIdToken(adminPropsParser().auth.parseAsToken(body.token));
+    await auth().verifyIdToken(
+        adminPropsParser().auth.parseAsToken(body.token)
+    );
 
     const post = blogPropsParser().one.parseAsInsertPost(body.post);
 

@@ -1,6 +1,6 @@
 const api = (() => {
     const postRoute = (route: 'update' | 'insert' | 'query') =>
-        `admin/post/${route}`;
+        `admin/post/${route}` as const;
     return {
         admin: {
             login: 'admin/login',

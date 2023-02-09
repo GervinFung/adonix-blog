@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { SxProps, Theme } from '@mui/material/styles';
 import MuiLink from '@mui/material/Link';
+import Skeleton from '@mui/material/Skeleton';
 import Link from 'next/link';
 import {
     PostCommonProps,
@@ -26,6 +27,7 @@ const Preview = (
             >;
             page: number;
             totalPosts: number;
+            isLoaded: boolean;
             onPaginationChange: (page: number) => void;
         } & (
             | {
@@ -76,6 +78,16 @@ const Preview = (
         </Typography>
     );
 
+    const IndividualGrid = ({
+        children,
+    }: Readonly<{
+        children: React.ReactNode;
+    }>) => (
+        <Grid item xs={2} sm={6} md={4}>
+            {children}
+        </Grid>
+    );
+
     return (
         <>
             <Box
@@ -93,71 +105,91 @@ const Preview = (
                     spacing={{ xs: 1, md: 3 }}
                     columns={{ xs: 2, sm: 12, md: 12 }}
                 >
-                    {posts.map(
-                        ({ time, description, title, id, imagePath }) => {
-                            const link = `/${
-                                props.type !== 'admin' ? '' : 'admin/'
-                            }post/${id}${
-                                props.type !== 'admin'
-                                    ? ''
-                                    : `?queryOption=${props.queryOption}`
-                            }`;
-                            return (
-                                <Grid item xs={2} sm={6} md={4} key={id}>
-                                    <Link href={link}>
-                                        <MuiLink href={link} underline="none">
-                                            <Paper
-                                                elevation={3}
-                                                sx={{
-                                                    height: '100%',
-                                                    transition:
-                                                        'transform 0.15s ease-in-out',
-                                                    '&:hover': {
-                                                        transform:
-                                                            'scale3d(1.05, 1.05, 1)',
-                                                    },
-                                                    mb: 2,
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                <img
-                                                    src={imagePath}
-                                                    style={{
-                                                        width: '100%',
-                                                    }}
-                                                />
-                                                <div
-                                                    style={{
-                                                        margin: '8px 16px',
-                                                    }}
-                                                >
-                                                    <GenerateTypography
-                                                        variant="h5"
-                                                        value={title}
-                                                        style={{
-                                                            fontWeight: '900',
-                                                        }}
-                                                    />
-                                                    <GenerateTypography
-                                                        variant="subtitle2"
-                                                        value={time.toDateString()}
-                                                    />
-                                                    <GenerateTypography
-                                                        variant="subtitle1"
-                                                        value={description}
-                                                        style={{
-                                                            mb: 0,
-                                                            color: 'text.secondary',
-                                                        }}
-                                                    />
-                                                </div>
-                                            </Paper>
-                                        </MuiLink>
-                                    </Link>
-                                </Grid>
-                            );
-                        }
-                    )}
+                    {!props.isLoaded
+                        ? Array.from(
+                              {
+                                  length: postsPerPage,
+                              },
+                              (_, index) => (
+                                  <IndividualGrid key={index}>
+                                      <Skeleton
+                                          height="400px"
+                                          variant="rectangular"
+                                      />
+                                  </IndividualGrid>
+                              )
+                          )
+                        : posts.map(
+                              ({ time, description, title, id, imagePath }) => {
+                                  const link = `/${
+                                      props.type !== 'admin' ? '' : 'admin/'
+                                  }post/${id}${
+                                      props.type !== 'admin'
+                                          ? ''
+                                          : `?queryOption=${props.queryOption}`
+                                  }`;
+                                  return (
+                                      <IndividualGrid key={id}>
+                                          <Link href={link}>
+                                              <MuiLink
+                                                  href={link}
+                                                  underline="none"
+                                              >
+                                                  <Paper
+                                                      elevation={3}
+                                                      sx={{
+                                                          height: '100%',
+                                                          transition:
+                                                              'transform 0.15s ease-in-out',
+                                                          '&:hover': {
+                                                              transform:
+                                                                  'scale3d(1.05, 1.05, 1)',
+                                                          },
+                                                          mb: 2,
+                                                          cursor: 'pointer',
+                                                      }}
+                                                  >
+                                                      <img
+                                                          src={imagePath}
+                                                          style={{
+                                                              width: '100%',
+                                                          }}
+                                                      />
+                                                      <div
+                                                          style={{
+                                                              margin: '8px 16px',
+                                                          }}
+                                                      >
+                                                          <GenerateTypography
+                                                              variant="h5"
+                                                              value={title}
+                                                              style={{
+                                                                  fontWeight:
+                                                                      '900',
+                                                              }}
+                                                          />
+                                                          <GenerateTypography
+                                                              variant="subtitle2"
+                                                              value={time.toDateString()}
+                                                          />
+                                                          <GenerateTypography
+                                                              variant="subtitle1"
+                                                              value={
+                                                                  description
+                                                              }
+                                                              style={{
+                                                                  mb: 0,
+                                                                  color: 'text.secondary',
+                                                              }}
+                                                          />
+                                                      </div>
+                                                  </Paper>
+                                              </MuiLink>
+                                          </Link>
+                                      </IndividualGrid>
+                                  );
+                              }
+                          )}
                 </Grid>
             </Box>
             {totalPosts >= postsPerPage && (

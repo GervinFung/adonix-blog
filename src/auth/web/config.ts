@@ -1,7 +1,6 @@
-import { initializeApp } from 'firebase/app';
-import { parseAsStringEnv } from '../util/env';
+import { parseAsStringEnv } from '../../util/env';
 
-const app = initializeApp({
+const config = {
     apiKey: parseAsStringEnv({
         env: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
         name: 'FIREBASE_API_KEY',
@@ -30,6 +29,6 @@ const app = initializeApp({
         env: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
         name: 'FIREBASE_MEASUREMENT_ID',
     }),
-});
+};
 
-export { app };
+export default config;

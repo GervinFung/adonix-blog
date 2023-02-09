@@ -10,7 +10,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { ToastContainer } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
-import { AdonixAdmin, onAdminStateChanged } from '../src/auth';
+import AdonixAuthAdmin, { AdonixAdmin } from '../src/auth/web';
 
 const AdonixBlogContext = React.createContext({
     admin: undefined as AdonixAdmin,
@@ -19,6 +19,14 @@ const AdonixBlogContext = React.createContext({
         setIsDarkMode: () => {},
     },
 });
+
+import { onAuthStateChanged } from 'firebase/auth';
+import nullableToUndefinedPropsParser from '../src/parser/type';
+
+const useOnAdminStateChanged = (setAdmin: (admin: AdonixAdmin) => void) =>
+    onAuthStateChanged(AdonixAuthAdmin.instance().getAuth(), (user) =>
+        setAdmin(nullableToUndefinedPropsParser().parseValue(user))
+    );
 
 const App = ({ Component, pageProps }: AppProps) => {
     const key = 'isDarkMode';
@@ -38,7 +46,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         const style = (color: string) =>
             `background: #282A36; color: ${color}; font-family:monospace; font-size: 2em`;
         console.log('%cBonjour?', style('#50FA7B'));
-        const unsubscribe = onAdminStateChanged((admin) => {
+        const unsubscribe = useOnAdminStateChanged((admin) => {
             setState((prev) => ({
                 ...prev,
                 admin,

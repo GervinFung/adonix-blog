@@ -12,7 +12,7 @@ const logout: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { body } = req;
 
-    const verifiedId = await auth.verifyIdToken(
+    const verifiedId = await auth().verifyIdToken(
         adminPropsParser().auth.parseAsToken(body.token)
     );
     const database = await Database.instance();

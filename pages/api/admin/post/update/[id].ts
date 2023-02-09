@@ -14,7 +14,9 @@ const update: EndPointFunc<Response> = async (req, res) => {
     await cors<Response>()(req, res);
     const { body, query } = req;
 
-    await auth.verifyIdToken(adminPropsParser().auth.parseAsToken(body.token));
+    await auth().verifyIdToken(
+        adminPropsParser().auth.parseAsToken(body.token)
+    );
 
     const { one } = blogPropsParser();
 

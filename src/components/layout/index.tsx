@@ -25,7 +25,7 @@ const Layout = ({
 
     const url = process.env.ORIGIN;
     const description =
-        'The Personal Blog of PoolOfDeath20 | GervinFung, where I write just about anything and share my knowledge or experiences';
+        'The Personal Blog of Gervin Fung Da Xuen | PoolOfDeath20, where I write just about anything and share my knowledge or experiences';
 
     const iconPath = '/images/icon';
 

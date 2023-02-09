@@ -1,6 +1,5 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { parseAsString } from 'parse-dont-validate';
 import adonixAxios from '../../../axios';
 import { AdminHandlePosts } from '../../../common/type/post';
 import usePage from '../../../hook/page';
@@ -8,11 +7,13 @@ import adminPropsParser from '../../../parser/admin';
 import blogPropsParser from '../../../parser/blog';
 import { api } from '../../../util/const';
 import Preview from '../../blog/posts/preview';
-import { ToastError, ToastPromise } from '../../toastify';
+import { ToastPromise } from '../../toastify';
 import { admin as adminConst } from '../../../util/const';
 import { Option } from '../common';
 import PostsUnavailable from '../../blog/posts/unavailable';
-import { NonNullableAdonixAdmin } from '../../../auth';
+import { NonNullableAdonixAdmin } from '../../../auth/web';
+import { processErrorMessage } from '../../../util/error';
+import Skeleton from '@mui/material/Skeleton';
 
 const Posts = ({
     admin,
@@ -46,7 +47,7 @@ const Posts = ({
         if (!queryOption) {
             return;
         }
-        const promise = new Promise<string>((res, rej) =>
+        const promise = new Promise<string>((resolve, reject) => {
             admin
                 .getIdToken()
                 .then((token) =>
@@ -95,33 +96,26 @@ const Posts = ({
                                     })(),
                                 };
                             });
-                            res('Completed');
+                            return resolve('Completed');
                         })
                         .catch((error) => {
                             setState((prev) => ({
                                 ...prev,
                                 isLoaded: true,
                             }));
-                            rej(error);
+                            throw new Error(processErrorMessage(error));
                         })
                 )
-                .catch(rej)
-        );
+                .catch((error) => reject(processErrorMessage(error)));
+        });
         ToastPromise({
             promise,
             pending: 'Querying posts...',
-            success: {
-                render: ({ data }) =>
-                    parseAsString(data).orElseThrowDefault('data'),
-            },
-            error: {
-                render: ({ data }) => ToastError(data),
-            },
         });
     }, [queryOption, page]);
 
     if (!queryOption || !isLoaded) {
-        return null;
+        return <Skeleton />;
     }
 
     if (!posts.length) {
@@ -141,6 +135,7 @@ const Posts = ({
             />
             <Preview
                 type="admin"
+                isLoaded={isLoaded}
                 queryOption={queryOption}
                 posts={(() => {
                     switch (type) {
