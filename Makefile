@@ -88,7 +88,7 @@ test-integration:
 test: test-unit test-integration
 
 install-mongo:
-	$(VITE_NODE) script/mongo-setup
+	$(NODE_BIN)vite-node script/mongo-setup/install.ts
 
 setup-mongo:
 	sudo systemctl unmask mongod
