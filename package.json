@@ -15,7 +15,6 @@
         "cors": "^2.8.5",
         "firebase": "^9.13.0",
         "firebase-admin": "^10.2.0",
-        "granula-string": "^1.0.6",
         "minutes-to-read": "^1.1.0",
         "mongodb": "^4.11.0",
         "next": "^12.3.2",

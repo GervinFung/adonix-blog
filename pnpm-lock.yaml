@@ -19,7 +19,6 @@ specifiers:
   eslint-plugin-react: ^7.31.10
   firebase: ^9.13.0
   firebase-admin: ^10.2.0
-  granula-string: ^1.0.6
   minutes-to-read: ^1.1.0
   mongodb: ^4.11.0
   next: ^12.3.2
@@ -45,7 +44,6 @@ dependencies:
   cors: 2.8.5
   firebase: 9.13.0
   firebase-admin: 10.3.0
-  granula-string: 1.0.6
   minutes-to-read: 1.1.0
   mongodb: 4.11.0
   next: 12.3.2_biqbaboplfbrettd7655fr4n2y
@@ -3715,10 +3713,6 @@ packages:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
     dev: false
     optional: true
-
-  /granula-string/1.0.6:
-    resolution: {integrity: sha512-ks0RDAI0dHL1Z4HLiG9VqafaZpuT/HIc/zFoydDkZArNKRHMMHKHRW/xsZ1ALjeMGwHr/CTzEIc3ZUj/zOHvlQ==}
-    dev: false
 
   /grapheme-splitter/1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
