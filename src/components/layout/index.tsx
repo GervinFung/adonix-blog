@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import Fab from '@mui/material/Fab';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { DefaultSeo } from 'next-seo';
+import { parseAsString } from 'parse-dont-validate';
 
 const Layout = ({
     children,
@@ -22,13 +23,15 @@ const Layout = ({
         threshold: 400,
     });
 
-    const url = 'https://adonix-blog.vercel.app';
+    const url = process.env.ORIGIN;
     const description =
         'The Personal Blog of PoolOfDeath20 | GervinFung, where I write just about anything and share my knowledge or experiences';
 
     const iconPath = '/images/icon';
 
     const dimensions = [48, 72, 96, 144, 192, 256, 384, 512] as const;
+
+    const env = process.env.NODE_ENV;
 
     return (
         <div
@@ -43,6 +46,32 @@ const Layout = ({
                     content="initial-scale=1.0, width=device-width"
                 />
                 <link rel="shortcut icon" href="/images/icon/favicon.ico" />
+                {env !== 'production' && env !== 'development'
+                    ? null
+                    : (() => {
+                          const gaMeasurementId = parseAsString(
+                              process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+                          ).orElseThrowCustom(
+                              'NEXT_PUBLIC_GA_MEASUREMENT_ID is not a string'
+                          );
+
+                          return (
+                              <>
+                                  <script
+                                      async
+                                      src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+                                  />
+                                  <script>
+                                      {[
+                                          'window.dataLayer = window.dataLayer || []',
+                                          'function gtag(){window.dataLayer.push(arguments);}',
+                                          `gtag('js', new Date())`,
+                                          `gtag('config', '${gaMeasurementId}', {page_path: window.location.pathname})`,
+                                      ].join('\n')}
+                                  </script>
+                              </>
+                          );
+                      })()}
             </Head>
             <DefaultSeo
                 title={title}

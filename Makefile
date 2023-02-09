@@ -77,8 +77,15 @@ typecheck-watch:
 	make typecheck arguments=--w
 
 ## test
-test:
-	$(NODE_BIN)vitest
+vitest=$(NODE_BIN)vitest
+
+test-unit:
+	$(vitest) --mode unit
+
+test-integration:
+	$(vitest) --mode intergation
+
+test: test-unit test-integration
 
 install-mongo:
 	sudo apt-get install gnupg

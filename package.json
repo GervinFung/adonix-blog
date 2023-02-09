@@ -37,7 +37,7 @@
         "@types/react-syntax-highlighter": "^15.5.5",
         "@typescript-eslint/eslint-plugin": "^5.42.0",
         "@typescript-eslint/parser": "^5.42.0",
-        "cases-of-test": "^0.1.0",
+        "ci-info": "^3.7.1",
         "dotenv": "^16.0.3",
         "esbuild-env-parsing": "^1.0.3",
         "eslint": "^8.27.0",
