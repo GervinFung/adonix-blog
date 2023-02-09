@@ -77,18 +77,22 @@ typecheck-watch:
 	make typecheck arguments=--w
 
 ## test
-test:
-	$(NODE_BIN)vitest
+vitest=$(NODE_BIN)vitest
+
+test-unit:
+	$(vitest) --mode unit
+
+test-integration:
+	$(vitest) --mode intergation
+
+test: test-unit test-integration
 
 install-mongo:
-	sudo apt-get install gnupg
-	wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-	sudo apt-get update
-	sudo apt-get install -y mongodb-org
+	$(NODE_BIN)vite-node script/mongo-setup/install.ts
 
 setup-mongo:
+	sudo systemctl unmask mongod
 	sudo systemctl start mongod
 	sudo systemctl stop mongod
 	sudo systemctl restart mongod
-	mongosh < script/mongo.js
+	mongosh < script/mongo-setup/document.js

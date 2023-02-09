@@ -1,17 +1,16 @@
 import Database from '../../../src/database/mongo';
-import testPost from './post';
-import testAuthRecord from './auth-record';
-import testCases from 'cases-of-test';
+import testAuthRecord from './auth-record/insert-update-one';
+import testQueryInsertUpdateOne from './post/query-insert-update-one';
+import testQueryPaginated from './post/query-paginated';
+import testQueryPublishUnpublishDeleteRestore from './post/query-publish-unpubish-delete-restore-one';
 import { afterAll, describe } from 'vitest';
 
-const testMongo = () =>
-    describe('MongoDB', () => {
-        testCases({
-            tests: [[testAuthRecord], [testPost]],
-        });
-        afterAll(async () => {
-            (await Database.instance()).close();
-        });
+describe('MongoDB', () => {
+    testAuthRecord();
+    testQueryInsertUpdateOne();
+    testQueryPaginated();
+    testQueryPublishUnpublishDeleteRestore();
+    afterAll(async () => {
+        (await Database.instance()).close();
     });
-
-export default testMongo;
+});

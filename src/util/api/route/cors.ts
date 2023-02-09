@@ -1,7 +1,7 @@
 import Cors from 'cors';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { DeepReadonly } from '../../type';
-import { parseAsStringEnv } from 'esbuild-env-parsing';
+import { parseAsStringEnv } from '../../env';
 
 type Response<T> = string | DeepReadonly<T>;
 

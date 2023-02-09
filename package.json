@@ -15,7 +15,6 @@
         "cors": "^2.8.5",
         "firebase": "^9.13.0",
         "firebase-admin": "^10.2.0",
-        "granula-string": "^1.0.6",
         "minutes-to-read": "^1.1.0",
         "mongodb": "^4.11.0",
         "next": "^12.3.2",
@@ -37,13 +36,12 @@
         "@types/react-syntax-highlighter": "^15.5.5",
         "@typescript-eslint/eslint-plugin": "^5.42.0",
         "@typescript-eslint/parser": "^5.42.0",
-        "cases-of-test": "^0.1.0",
-        "dotenv": "^16.0.3",
-        "esbuild-env-parsing": "^1.0.3",
+        "ci-info": "^3.7.1",
         "eslint": "^8.27.0",
         "eslint-plugin-react": "^7.31.10",
         "prettier": "^2.7.1",
         "typescript": "^4.8.4",
+        "vite-node": "^0.28.4",
         "vitest": "^0.24.5"
     }
 }
